@@ -1,0 +1,40 @@
+{
+  "name": "ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo ecommerce con Medusa",
+  "packageManager": "pnpm@10.14.0",
+  "pnpm": {
+    "overrides": {
+      "zod": "3.25.4",
+      "vite": "5.4.21",
+      "@medusajs/ui": "4.1.1"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "zod": "3.25",
+        "vite": "5.4",
+        "@medusajs/ui": "4.1"
+      }
+    },
+    "publicHoistPattern": ["*@medusajs*"],
+    "shamefullyHoist": true
+  },
+  "scripts": {
+    "dev": "concurrently -n backend,www -c blue,green \"pnpm run dev:backend\" \"pnpm run dev:www\"",
+    "dev:backend": "pnpm --filter @ecommerce/backend dev",
+    "dev:www": "pnpm --filter @ecommerce/www dev",
+    "docker:up": "docker-compose -f docker-compose.dev.yml up",
+    "docker:down": "docker-compose -f docker-compose.dev.yml down",
+    "docker:build": "docker-compose -f docker-compose.dev.yml build",
+    "docker:logs": "docker-compose -f docker-compose.dev.yml logs -f",
+    "postgres:up": "docker-compose -f docker-compose.dev.yml up -d postgres",
+    "postgres:down": "docker-compose -f docker-compose.dev.yml stop postgres",
+    "db:reset": "pwsh -NoProfile -File scripts/drop-medusa-db.ps1",
+    "user": "pnpm --filter @ecommerce/backend exec medusa user"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.6.2"
+  }
+}

@@ -1,0 +1,14 @@
+diff --git a/node_modules/@medusajs/utils/dist/modules-sdk/medusa-internal-service.js b/node_modules/@medusajs/utils/dist/modules-sdk/medusa-internal-service.js
+index 1234567..89abcde 100644
+--- a/node_modules/@medusajs/utils/dist/modules-sdk/medusa-internal-service.js
++++ b/node_modules/@medusajs/utils/dist/modules-sdk/medusa-internal-service.js
+@@ -41,7 +41,7 @@ const build_query_1 = require("./build-query");
+         const subscriberInstance = new subscriber(context);
+         // There is no public API to unregister subscribers or check if a subscriber is already
+         // registered. This means that we need to manually check if the subscriber is already
+         // registered, otherwise we will register the same subscriber twice.
+-        const hasListeners = manager.getEventManager().subscribers.some((s) => s.constructor.name === subscriberInstance.constructor.name);
++        const hasListeners = Array.from(manager.getEventManager().subscribers).some((s) => s.constructor.name === subscriberInstance.constructor.name);
+         if (!hasListeners) {
+             manager.getEventManager().registerSubscriber(subscriberInstance);
+         }
