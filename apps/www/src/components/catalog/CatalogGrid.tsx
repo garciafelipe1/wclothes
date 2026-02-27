@@ -27,8 +27,8 @@ export default function CatalogGrid({ products, featureVideoSrc }: CatalogGridPr
 
       {hasFeatureRow && featureLeft.length === 2 && featureRight.length === 2 && (
         <CatalogFeatureRow
-          leftProducts={featureLeft}
-          rightProducts={featureRight}
+          leftProducts={featureLeft as [CatalogProduct, CatalogProduct]}
+          rightProducts={featureRight as [CatalogProduct, CatalogProduct]}
           videoSrc={featureVideoSrc}
         />
       )}

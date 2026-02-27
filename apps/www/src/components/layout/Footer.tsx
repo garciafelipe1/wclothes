@@ -2,6 +2,8 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { useLocaleCountry } from "@/app/context/locale-country"
+import { getLocalizedPath } from "@/i18n/routing"
 
 const FOOTER_CATEGORIES = [
   { label: "Inicio", href: "/" },
@@ -15,6 +17,8 @@ const FOOTER_CATEGORIES = [
 ]
 
 export default function Footer() {
+  const { locale, countryCode } = useLocaleCountry()
+  const toPath = (path: string) => getLocalizedPath(locale, countryCode, path)
   const [email, setEmail] = useState("")
   const [country, setCountry] = useState("Argentina")
 
@@ -61,7 +65,7 @@ export default function Footer() {
             <ul className="footer-links">
               {FOOTER_CATEGORIES.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href}>{item.label}</Link>
+                  <Link href={toPath(item.href)}>{item.label}</Link>
                 </li>
               ))}
             </ul>

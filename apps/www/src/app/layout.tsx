@@ -1,12 +1,18 @@
 import type { Metadata } from "next"
-import { Montserrat } from "next/font/google"
+import { Montserrat, Great_Vibes } from "next/font/google"
 import "./globals.css"
-import MainNav from "@/components/layout/MainNav"
-import Footer from "@/components/layout/Footer"
 
 const montserrat = Montserrat({
   subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-nav",
+  display: "swap",
+})
+
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-logo-script",
   display: "swap",
 })
 
@@ -21,12 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={montserrat.variable}>
-      <body>
-        <MainNav />
-        <main>{children}</main>
-        <Footer />
-      </body>
+    <html lang="es" className={`${montserrat.variable} ${greatVibes.variable}`}>
+      <body>{children}</body>
     </html>
   )
 }

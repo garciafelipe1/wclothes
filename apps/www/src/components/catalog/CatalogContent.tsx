@@ -12,17 +12,24 @@ const FEATURE_VIDEO_SRC =
 
 type CatalogContentProps = {
   products: CatalogProduct[]
+  totalItems?: number
+  totalPages?: number
 }
 
-export default function CatalogContent({ products }: CatalogContentProps) {
+export default function CatalogContent({
+  products,
+  totalItems: totalItemsProp,
+  totalPages,
+}: CatalogContentProps) {
   const [view, setView] = useState<ViewCols>(4)
+  const totalItems = totalItemsProp ?? products.length
 
   return (
     <>
       <CatalogToolbar
         view={view}
         onViewChange={setView}
-        totalItems={products.length}
+        totalItems={totalItems}
         onFilterClick={() => {}}
       />
       <CatalogGrid

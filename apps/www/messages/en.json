@@ -1,0 +1,25 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error"
+  },
+  "nav": {
+    "catalog": "Catalog",
+    "cart": "Cart",
+    "account": "My account",
+    "search": "Search"
+  },
+  "checkout": {
+    "cart": "Cart",
+    "address": "Address",
+    "shipping": "Shipping",
+    "payment": "Payment",
+    "summary": "Summary",
+    "placeOrder": "Place order"
+  },
+  "cart": {
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "continueShopping": "Continue shopping"
+  }
+}

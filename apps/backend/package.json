@@ -12,6 +12,7 @@
     "db:setup": "medusa db:setup",
     "db:migrate": "medusa db:migrate",
     "db:generate": "medusa db:generate",
+    "seed": "medusa exec ./src/scripts/seed.ts",
     "postinstall": "node scripts/patch-medusa-utils.js"
   },
   "dependencies": {

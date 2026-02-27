@@ -1,0 +1,25 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error"
+  },
+  "nav": {
+    "catalog": "Catálogo",
+    "cart": "Carrito",
+    "account": "Mi cuenta",
+    "search": "Buscar"
+  },
+  "checkout": {
+    "cart": "Carrito",
+    "address": "Dirección",
+    "shipping": "Envío",
+    "payment": "Pago",
+    "summary": "Resumen",
+    "placeOrder": "Confirmar pedido"
+  },
+  "cart": {
+    "empty": "Tu carrito está vacío",
+    "subtotal": "Subtotal",
+    "continueShopping": "Seguir comprando"
+  }
+}

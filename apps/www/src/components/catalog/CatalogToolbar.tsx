@@ -16,9 +16,11 @@ export default function CatalogToolbar({ view, onViewChange, totalItems, onFilte
 
   return (
     <div className="catalog-toolbar">
-      <span className="catalog-toolbar-count">Show {totalItems} items</span>
+      <span className="catalog-toolbar-count">
+        {totalItems} {totalItems === 1 ? "producto" : "productos"}
+      </span>
       <div className="catalog-toolbar-view">
-        <span className="catalog-toolbar-view-label">View</span>
+        <span className="catalog-toolbar-view-label">Vista</span>
         {([2, 4, 8] as const).map((n) => (
           <button
             key={n}
@@ -38,7 +40,7 @@ export default function CatalogToolbar({ view, onViewChange, totalItems, onFilte
         onClick={onFilterClick}
         aria-label="Filtrar"
       >
-        + Filter
+        + Filtrar
       </button>
       <button
         type="button"
@@ -46,7 +48,7 @@ export default function CatalogToolbar({ view, onViewChange, totalItems, onFilte
         onClick={scrollToTop}
         aria-label="Volver arriba"
       >
-        Back to top
+        Volver arriba
       </button>
     </div>
   )
