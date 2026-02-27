@@ -51,7 +51,7 @@ export async function completeCartAction(paymentMethod: PaymentMethod = "mercado
 
     if (paymentMethod === "retiro_local") {
       await medusa.store.payment.initiatePaymentSession(
-        cart as { id: string; region_id?: string; total?: number; payment_collection?: unknown },
+        cart as any,
         { provider_id: MANUAL_PAYMENT_PROVIDER_ID, data: {} }
       )
     }
