@@ -1,6 +1,12 @@
-import { StickyStackSection } from "@/components/home"
-import { LocalizedLink } from "./_components/LocalizedLink"
+import {
+  StickyStackSection,
+  Marquee,
+  CategoryGrid,
+  FeaturedProducts,
+  BrandStatement,
+} from "@/components/home"
 import { getLocalizedPath } from "@/i18n/routing"
+import { productService } from "@/services/product.service"
 
 const STACK_SECTIONS = [
   {
@@ -33,11 +39,60 @@ const STACK_SECTIONS = [
   },
 ]
 
+const CATEGORIES = [
+  {
+    title: "ROPA",
+    image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=80",
+    href: "/catalog?category=Ropa",
+  },
+  {
+    title: "ACCESORIOS",
+    image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&q=80",
+    href: "/catalog?category=Accesorios",
+  },
+  {
+    title: "NEW IN",
+    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
+    href: "/catalog?new=1",
+  },
+]
+
+function formatPrice(amount?: number, currency?: string): string | undefined {
+  if (amount == null) return undefined
+  const code = (currency || "ars").toUpperCase()
+  return new Intl.NumberFormat("es-AR", { style: "currency", currency: code, minimumFractionDigits: 0 }).format(amount)
+}
+
 type HomePageProps = { params: Promise<{ locale: string; countryCode: string }> }
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale, countryCode } = await params
   const catalogPath = getLocalizedPath(locale, countryCode, "/catalog")
+
+  let featuredProducts: { id: string; title: string | null; handle: string | null; thumbnail: string | null; price?: string }[] = []
+  try {
+    const { products } = await productService.getAll({ page: 1 })
+    featuredProducts = products.slice(0, 4).map((p: any) => {
+      const images = Array.isArray(p.images) ? p.images : []
+      const thumb = (typeof p.thumbnail === "string" && p.thumbnail) || images[0]?.url || null
+      const variant = Array.isArray(p.variants) ? p.variants[0] : undefined
+      const price = formatPrice(variant?.calculated_price?.calculated_amount, variant?.calculated_price?.currency_code)
+      return {
+        id: String(p.id),
+        title: typeof p.title === "string" ? p.title : null,
+        handle: typeof p.handle === "string" ? p.handle : null,
+        thumbnail: thumb,
+        price,
+      }
+    })
+  } catch {
+    /* products unavailable */
+  }
+
+  const localizedCategories = CATEGORIES.map((c) => ({
+    ...c,
+    href: getLocalizedPath(locale, countryCode, c.href),
+  }))
 
   return (
     <>
@@ -49,30 +104,19 @@ export default async function HomePage({ params }: HomePageProps) {
             title={section.title}
             description={section.description}
             ctaText={section.ctaText}
-            ctaHref={catalogPath}
+            ctaHref={getLocalizedPath(locale, countryCode, section.ctaPath)}
             zIndex={i + 1}
           />
         ))}
       </div>
-      <section className="section-content">
-        <h2 style={{ marginTop: 0, fontSize: "1.75rem" }}>Novedades</h2>
-        <p style={{ color: "var(--color-text-muted)", marginBottom: "2rem" }}>
-          Explora la tienda y descubre las últimas prendas.
-        </p>
-        <LocalizedLink
-          href="/catalog"
-          style={{
-            display: "inline-block",
-            padding: "0.75rem 1.5rem",
-            background: "var(--color-bar)",
-            color: "var(--color-bar-text)",
-            fontWeight: 600,
-            letterSpacing: "0.05em",
-          }}
-        >
-          VER PRODUCTOS
-        </LocalizedLink>
-      </section>
+
+      <Marquee />
+
+      <CategoryGrid categories={localizedCategories} />
+
+      <FeaturedProducts products={featuredProducts} catalogPath={catalogPath} />
+
+      <BrandStatement />
     </>
   )
 }

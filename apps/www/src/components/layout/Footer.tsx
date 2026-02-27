@@ -74,9 +74,9 @@ export default function Footer() {
           <div className="footer-col footer-contact">
             <h3 className="footer-heading">CONTACTANOS</h3>
             <ul className="footer-contact-list">
-              <li>@CLOTHERBROS</li>
-              <li><a href="mailto:clproda@gmail.com">clproda@gmail.com</a></li>
-              <li>Ituzaingo, Villa Udaondo (Buenos Aires)</li>
+              <li>@WHOMANCLOTHES</li>
+              <li><a href="mailto:clproda@gmail.com">WHOMAN@gmail.com</a></li>
+              <li>Bahia Blanca (Buenos Aires, Argentina)</li>
             </ul>
           </div>
         </div>

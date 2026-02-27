@@ -401,36 +401,41 @@ export default function MainNav(): JSX.Element {
         </div>
       </nav>
 
-      {searchOpen && (
-        <div className="search-bar-strip" role="search" ref={searchStripRef}>
-          <form className="search-bar-strip__inner" onSubmit={handleSearchSubmit}>
-            <svg className="search-bar-strip__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
+      <div
+        className={`search-bar-strip ${searchOpen ? "search-bar-strip--open" : ""}`}
+        role="search"
+        ref={searchStripRef}
+        aria-hidden={!searchOpen}
+      >
+        <form className="search-bar-strip__inner" onSubmit={handleSearchSubmit}>
+          <svg className="search-bar-strip__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            ref={searchInputRef}
+            type="search"
+            className="search-bar-strip__input"
+            placeholder="Busca..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Buscar productos"
+            autoComplete="off"
+            tabIndex={searchOpen ? 0 : -1}
+          />
+          <button
+            type="button"
+            className="search-bar-strip__close"
+            aria-label="Cerrar búsqueda"
+            onClick={closeSearch}
+            tabIndex={searchOpen ? 0 : -1}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12" />
             </svg>
-            <input
-              ref={searchInputRef}
-              type="search"
-              className="search-bar-strip__input"
-              placeholder="Busca..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Buscar productos"
-              autoComplete="off"
-            />
-            <button
-              type="button"
-              className="search-bar-strip__close"
-              aria-label="Cerrar búsqueda"
-              onClick={closeSearch}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </form>
-        </div>
-      )}
+          </button>
+        </form>
+      </div>
 
       {catalogMegaOpen && (
         <div

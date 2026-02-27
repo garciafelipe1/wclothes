@@ -1,3 +1,7 @@
 export { default as StickyStackSection } from "./StickyStackSection"
 export { default as HeroParallax } from "./HeroParallax"
 export { default as ParallaxSection } from "./ParallaxSection"
+export { default as Marquee } from "./Marquee"
+export { default as CategoryGrid } from "./CategoryGrid"
+export { default as FeaturedProducts } from "./FeaturedProducts"
+export { default as BrandStatement } from "./BrandStatement"
