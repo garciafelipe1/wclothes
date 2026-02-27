@@ -7,7 +7,7 @@ import { CheckoutProgress } from "../_components/CheckoutProgress"
 import { CheckoutOrderSummary } from "../_components/CheckoutOrderSummary"
 import { CheckoutPaymentContent } from "./_components/CheckoutPaymentContent"
 
-function formatShippingAddress(addr: Record<string, unknown>): string {
+function formatShippingAddress(addr: any): string {
   if (!addr) return ""
   const parts: string[] = []
   if (addr.address_1) parts.push(addr.address_1)
@@ -34,7 +34,7 @@ export default async function ShippingPage({ params }: ShippingPageProps) {
   const subtotal = cart?.subtotal ?? cart?.item_subtotal ?? cart?.total ?? 0
   const shippingTotal = cart?.shipping_total ?? 0
   const total = cart?.total ?? subtotal
-  const email = (cart?.email as string) ?? ""
+  const email = cart?.email ?? ""
   const shippingAddress = cart?.shipping_address
   const shippingAddressLine = formatShippingAddress(shippingAddress)
   const shippingMethodLabel = "Envío a domicilio"

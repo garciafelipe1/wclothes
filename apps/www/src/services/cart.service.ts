@@ -2,7 +2,7 @@ import { medusa } from "@/lib/medusa"
 import { getCartId, setCartId } from "@/lib/data/cookies"
 import { getRegionByCountryCode } from "@/lib/data/regions"
 
-export type Cart = Record<string, unknown>
+export type Cart = any
 
 /**
  * Obtiene el carrito actual o crea uno nuevo para el país dado.

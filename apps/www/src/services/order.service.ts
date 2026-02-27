@@ -1,6 +1,6 @@
 import { medusa } from "@/lib/medusa"
 
-export type Order = Record<string, unknown>
+export type Order = any
 
 /**
  * Obtiene una orden por ID (p. ej. después de completar el checkout).
