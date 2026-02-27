@@ -2,8 +2,7 @@ import { medusa } from "@/lib/medusa"
 import { getCartId, setCartId } from "@/lib/data/cookies"
 import { getRegionByCountryCode } from "@/lib/data/regions"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Cart = any
+export type Cart = Record<string, unknown>
 
 /**
  * Obtiene el carrito actual o crea uno nuevo para el país dado.

@@ -7,8 +7,7 @@ import { CheckoutProgress } from "../_components/CheckoutProgress"
 import { CheckoutOrderSummary } from "../_components/CheckoutOrderSummary"
 import { CheckoutPaymentContent } from "./_components/CheckoutPaymentContent"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatShippingAddress(addr: any): string {
+function formatShippingAddress(addr: Record<string, unknown>): string {
   if (!addr) return ""
   const parts: string[] = []
   if (addr.address_1) parts.push(addr.address_1)

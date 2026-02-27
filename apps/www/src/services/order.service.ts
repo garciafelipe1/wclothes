@@ -1,7 +1,6 @@
 import { medusa } from "@/lib/medusa"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Order = any
+export type Order = Record<string, unknown>
 
 /**
  * Obtiene una orden por ID (p. ej. después de completar el checkout).

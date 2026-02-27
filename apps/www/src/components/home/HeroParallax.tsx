@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 const HERO_IMAGE =
@@ -29,9 +30,9 @@ export default function HeroParallax() {
           La última colección con prendas exclusivas y tonos en gradiente.
           Envío gratis en pedidos seleccionados.
         </p>
-        <a href="/catalog" className="hero-parallax__cta">
+        <Link href="/catalog" className="hero-parallax__cta">
           VER COLECCIÓN
-        </a>
+        </Link>
       </div>
     </section>
   )
