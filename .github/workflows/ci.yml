@@ -10,36 +10,106 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: 20
+  NEXT_PUBLIC_MEDUSA_BACKEND_URL: http://localhost:8000
+
 jobs:
-  lint-and-build-www:
-    name: Lint & Build Frontend
+  install:
+    name: Install Dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
+  lint:
+    name: Lint
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Lint frontend
         run: pnpm --filter @ecommerce/www lint
 
+  typecheck:
+    name: Type Check
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: TypeScript check
+        run: pnpm --filter @ecommerce/www exec tsc --noEmit
+
+  build-www:
+    name: Build Frontend
+    needs: [lint, typecheck]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Build
         run: pnpm --filter @ecommerce/www build
-        env:
-          NEXT_PUBLIC_MEDUSA_BACKEND_URL: http://localhost:8000
 
-  build-backend-docker:
-    name: Build Backend Docker Image
+  build-backend:
+    name: Build Backend Image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - uses: docker/setup-buildx-action@v3
+
       - name: Build Docker image
-        run: docker build -t ecommerce-backend ./apps/backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/backend
+          push: false
+          tags: ecommerce-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
