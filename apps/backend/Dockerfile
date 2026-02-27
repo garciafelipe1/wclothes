@@ -5,6 +5,7 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ postgresql-client
 
 COPY package.json ./
+COPY scripts/ ./scripts/
 RUN npm install --legacy-peer-deps
 
 RUN sed -i 's/manager\.getEventManager()\.subscribers\.some/Array.from(manager.getEventManager().subscribers).some/g' \
