@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "medusa build",
-    "start": "medusa db:migrate && medusa start -p ${PORT:-8000} -H 0.0.0.0",
+    "start": "sh scripts/start-railway.sh",
     "dev": "medusa develop",
     "migration:up": "medusa db:migrate",
     "migration:down": "medusa db:rollback",
