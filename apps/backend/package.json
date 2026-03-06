@@ -4,8 +4,8 @@
   "description": "Backend ecommerce con Medusa",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && tsc-alias",
-    "start": "node dist/index.js",
+    "build": "medusa build",
+    "start": "medusa db:migrate && medusa start -p ${PORT:-8000} -H 0.0.0.0",
     "dev": "medusa develop",
     "migration:up": "medusa db:migrate",
     "migration:down": "medusa db:rollback",
