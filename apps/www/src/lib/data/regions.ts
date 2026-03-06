@@ -26,3 +26,19 @@ export async function getRegionByCountryCode(countryCode: string): Promise<Store
   )
   return found ?? regions[0] ?? null
 }
+
+/** Returns the default region (Argentina first, then fallback to the first region). */
+export async function getDefaultRegion(): Promise<StoreRegion | null> {
+  try {
+    const { regions } = await medusa.store.region.list()
+    if (!regions?.length) return null
+    const ar = regions.find(
+      (r: StoreRegion) => r.countries?.some((c) => c?.iso_2 === "ar")
+    )
+    return ar ?? regions[0] ?? null
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    console.warn("[getDefaultRegion]", msg)
+    return null
+  }
+}

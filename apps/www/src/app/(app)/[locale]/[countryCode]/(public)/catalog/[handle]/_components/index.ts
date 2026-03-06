@@ -1,0 +1,7 @@
+export { ProductImageGallery } from "./ProductImageGallery"
+export { ProductHeroSidebar } from "./ProductHeroSidebar"
+export { ProductDetailsAccordion } from "./ProductDetailsAccordion"
+export { ProductStorytelling } from "./ProductStorytelling"
+export { CompleteTheLook } from "./CompleteTheLook"
+export { RelatedProducts } from "./RelatedProducts"
+export { PDPProductCard, type PDPProductCardProduct } from "./PDPProductCard"

@@ -1,6 +1,5 @@
 import { getLocalizedPath } from "@/i18n/routing"
-import { getCartId } from "@/lib/data/cookies"
-import { getCartWithItems } from "@/services/cart.service"
+import { getCheckoutData } from "@/lib/data/checkout"
 import { CheckoutProgress } from "../_components/CheckoutProgress"
 import { CheckoutOrderSummary } from "../_components/CheckoutOrderSummary"
 import { CheckoutAddressForm } from "./_components/CheckoutAddressForm"
@@ -12,15 +11,7 @@ type AddressPageProps = {
 export default async function AddressPage({ params }: AddressPageProps) {
   const { locale, countryCode } = await params
   const nextStepPath = getLocalizedPath(locale, countryCode, "/checkout/shipping")
-
-  const cartId = await getCartId()
-  const cart = await getCartWithItems(cartId)
-  const items = cart?.items ?? []
-  const hasItems = Array.isArray(items) && items.length > 0
-  const currencyCode = cart?.currency_code ?? "ars"
-  const subtotal = cart?.subtotal ?? cart?.item_subtotal ?? cart?.total ?? 0
-  const shippingTotal = cart?.shipping_total ?? 0
-  const total = cart?.total ?? subtotal
+  const { items, hasItems, currencyCode, subtotal, shippingTotal, total } = await getCheckoutData()
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { getLocalizedPath } from "@/i18n/routing"
 import { formatPrice } from "@/lib/format"
-import { getOrdersByEmail } from "@/services/order.service"
+import { getOrdersByEmail, type Order } from "@/services/order.service"
 
 type OrdersPageProps = {
   params: Promise<{ locale: string; countryCode: string }>
@@ -41,7 +41,7 @@ export default async function OrdersPage({ params, searchParams }: OrdersPagePro
 
         {orders.length > 0 && (
           <ul className="mt-8 space-y-4">
-            {orders.map((order: { id: string; display_id?: number; created_at?: string; total?: number; currency_code?: string; status?: string }) => (
+            {orders.map((order: Order) => (
               <li key={order.id} className="border border-neutral-200 rounded-lg p-4 hover:border-neutral-300">
                 <Link href={getLocalizedPath(locale, countryCode, `/orders/${order.id}`)} className="block">
                   <div className="flex flex-wrap items-center justify-between gap-2">

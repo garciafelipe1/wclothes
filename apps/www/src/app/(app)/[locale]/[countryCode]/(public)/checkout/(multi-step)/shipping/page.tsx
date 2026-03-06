@@ -1,22 +1,11 @@
 import Link from "next/link"
 import { getLocalizedPath } from "@/i18n/routing"
-import { getCartId } from "@/lib/data/cookies"
-import { getCartWithItems } from "@/services/cart.service"
+import { formatShippingAddress } from "@/lib/format"
+import { getCheckoutData } from "@/lib/data/checkout"
 import { OpenCartLink } from "@/components/cart/OpenCartLink"
 import { CheckoutProgress } from "../_components/CheckoutProgress"
 import { CheckoutOrderSummary } from "../_components/CheckoutOrderSummary"
 import { CheckoutPaymentContent } from "./_components/CheckoutPaymentContent"
-
-function formatShippingAddress(addr: any): string {
-  if (!addr) return ""
-  const parts: string[] = []
-  if (addr.address_1) parts.push(addr.address_1)
-  if (addr.postal_code) parts.push(`CP ${addr.postal_code}`)
-  const cityProv = [addr.city, addr.province].filter(Boolean).join(", ")
-  const lastLine = addr.phone ? `${cityProv} - ${addr.phone}` : cityProv
-  if (lastLine) parts.push(lastLine)
-  return parts.filter(Boolean).join("\n")
-}
 
 type ShippingPageProps = {
   params: Promise<{ locale: string; countryCode: string }>
@@ -26,19 +15,10 @@ export default async function ShippingPage({ params }: ShippingPageProps) {
   const { locale, countryCode } = await params
   const addressPath = getLocalizedPath(locale, countryCode, "/checkout/address")
 
-  const cartId = await getCartId()
-  const cart = await getCartWithItems(cartId)
-  const items = cart?.items ?? []
-  const hasItems = Array.isArray(items) && items.length > 0
-  const currencyCode = cart?.currency_code ?? "ars"
-  const subtotal = cart?.subtotal ?? cart?.item_subtotal ?? cart?.total ?? 0
-  const shippingTotal = cart?.shipping_total ?? 0
-  const total = cart?.total ?? subtotal
-  const email = cart?.email ?? ""
-  const shippingAddress = cart?.shipping_address
+  const { items, hasItems, currencyCode, subtotal, shippingTotal, total, email, shippingAddress } = await getCheckoutData()
   const shippingAddressLine = formatShippingAddress(shippingAddress)
   const shippingMethodLabel = "Envío a domicilio"
-  const phone = shippingAddress?.phone ?? cart?.shipping_address?.phone
+  const phone = shippingAddress?.phone
 
   return (
     <div>

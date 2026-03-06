@@ -1,0 +1,27 @@
+/* ── Checkout: light theme ── */
+
+.checkout-light-theme {
+  background: #fff !important;
+  color: #171717;
+}
+
+.checkout-light-theme input,
+.checkout-light-theme select,
+.checkout-light-theme textarea {
+  background: #fff !important;
+  color: #171717 !important;
+  border-color: #d4d4d4;
+}
+
+.checkout-light-theme input::placeholder,
+.checkout-light-theme textarea::placeholder {
+  color: #737373;
+}
+
+.checkout-light-theme label {
+  color: #404040;
+}
+
+.checkout-light-theme a {
+  color: #171717;
+}

@@ -31,6 +31,14 @@ Los productos se definen en TypeScript y se cargan en la base con un script, igu
    - Editá `src/scripts/seed/products/catalog.seed.ts` (o agregá nuevos `.seed.ts` en esa carpeta e importalos en `src/scripts/seed-products.ts`).
    - Volvé a ejecutar `pnpm seed`. Los productos ya existentes (por handle) no se duplican.
 
+5. **Productos con Color y Talle**
+   - Todas las remeras del seed tienen opciones Color y Talle con imagen.
+   - Si ya tenés productos creados con la opción "Default", el seed no los modifica. Para ver Color/Talle en todos los productos, necesitás un reset completo:
+   ```bash
+   pnpm seed:reset   # Borra la DB, recrea y ejecuta el seed
+   ```
+   **Nota:** `seed:reset` borra todos los datos (pedidos, carritos, etc.).
+
 ## Opción 2: Panel de administración
 
 1. Iniciá el backend: `pnpm dev` (Store API en `http://localhost:9001`).

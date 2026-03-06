@@ -1,8 +1,9 @@
 import { medusa } from "@/lib/medusa"
-import { getCartId, setCartId } from "@/lib/data/cookies"
+import { clearCartId, getCartId, setCartId } from "@/lib/data/cookies"
 import { getRegionByCountryCode } from "@/lib/data/regions"
+import type { Cart } from "@/types/cart"
 
-export type Cart = any
+export type { Cart }
 
 /**
  * Obtiene el carrito actual o crea uno nuevo para el país dado.
@@ -17,20 +18,19 @@ export async function getOrSetCart(countryCode: string): Promise<Cart | null> {
   if (cartId) {
     try {
       const { cart } = await medusa.store.cart.retrieve(cartId)
-      return cart ?? null
+      return (cart as Cart) ?? null
     } catch {
+      await clearCartId()
       cartId = null
     }
   }
 
   if (!cartId) {
     try {
-const { cart } = await medusa.store.cart.create({
-    region_id: region.id,
-  })
+      const { cart } = await medusa.store.cart.create({ region_id: region.id })
       if (cart?.id) {
         await setCartId(cart.id)
-        return cart
+        return cart as Cart
       }
     } catch (e) {
       console.warn("[getOrSetCart] create failed", e)
@@ -47,7 +47,7 @@ export async function getCart(cartId: string | null): Promise<Cart | null> {
   if (!cartId) return null
   try {
     const { cart } = await medusa.store.cart.retrieve(cartId)
-    return cart ?? null
+    return (cart as Cart) ?? null
   } catch {
     return null
   }
@@ -62,7 +62,7 @@ export async function getCartWithItems(cartId: string | null): Promise<Cart | nu
     const { cart } = await medusa.store.cart.retrieve(cartId, {
       fields: "+items.*",
     })
-    return cart ?? null
+    return (cart as Cart) ?? null
   } catch {
     return null
   }
@@ -82,6 +82,7 @@ export async function getCartCount(): Promise<number> {
     const items = cart?.items ?? []
     return Array.isArray(items) ? items.length : 0
   } catch {
+    await clearCartId()
     return 0
   }
 }

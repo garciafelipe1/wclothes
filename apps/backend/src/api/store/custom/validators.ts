@@ -4,7 +4,7 @@ import {
   sortOptionValues,
 } from "../../../shared/constants"
 
-const categoriesList = Object.values(CATEGORIES) as [string, ...string[]]
+const categoriesList = Object.values(CATEGORIES).filter((c) => c !== "Catálogo") as [string, ...string[]]
 
 export const GetStoreCustomSchema = z.object({
   q: z.string().optional(),
@@ -15,6 +15,12 @@ export const GetStoreCustomSchema = z.object({
     .transform((val) =>
       val && categoriesList.includes(val) ? val : undefined
     ),
+  sale: z
+    .string()
+    .optional()
+    .transform((val) => val === "1" || val === "true"),
+  color: z.string().optional().transform((v) => (v?.trim() || undefined)),
+  talle: z.string().optional().transform((v) => (v?.trim() || undefined)),
   min_price: z.preprocess((val) => {
     if (val != null && typeof val === "string") return parseInt(val, 10)
     return val

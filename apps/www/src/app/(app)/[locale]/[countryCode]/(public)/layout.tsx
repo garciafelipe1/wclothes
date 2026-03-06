@@ -3,6 +3,7 @@ import type { CountryCode } from "@/i18n/routing"
 import { notFound } from "next/navigation"
 import MainNav from "@/components/layout/MainNav"
 import Footer from "@/components/layout/Footer"
+import LocaleHtmlLang from "@/components/layout/LocaleHtmlLang"
 import { LocaleCountryProvider } from "@/app/context/locale-country"
 import { CartDrawerProvider } from "@/app/context/cart-drawer"
 import { getCartCount } from "@/services/cart.service"
@@ -32,6 +33,7 @@ export default async function PublicLayout({
 
   return (
     <LocaleCountryProvider locale={locale} countryCode={countryCode}>
+      <LocaleHtmlLang />
       <CartDrawerProvider initialCartCount={cartCount}>
         <MainNav />
         <main>{children}</main>

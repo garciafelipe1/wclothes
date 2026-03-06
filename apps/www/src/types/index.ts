@@ -1,10 +1,2 @@
-/**
- * Tipos compartidos del storefront.
- * Para tipos que vengan del backend/Medusa, se pueden extender aquí.
- */
-
-export type ProductSummary = {
-  id: string
-  title?: string
-  thumbnail?: string
-}
+export type { Cart, CartItem, CartAddress } from "./cart"
+export type { Order, OrderItem, OrderSummary } from "./order"

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import ProductImage from "./ProductImage"
 import ProductInfo from "./ProductInfo"
+import { getColorSwatch } from "@/lib/color-swatches"
 
 export type CatalogProduct = {
   id: string
@@ -12,6 +13,8 @@ export type CatalogProduct = {
   variants?: Array<{
     calculated_price?: { calculated_amount?: number; currency_code?: string }
   }>
+  /** Colores disponibles para mostrar como dots en la card */
+  colorValues?: string[]
 }
 
 type ProductCardProps = {
@@ -40,6 +43,22 @@ export default function ProductCard({ product }: ProductCardProps) {
           srcHover={product.thumbnailHover}
           alt={product.title ?? ""}
         />
+        {product.colorValues && product.colorValues.length > 0 && (
+          <div className="catalog-card__colors" aria-label="Colores disponibles">
+            {product.colorValues.slice(0, 5).map((c) => (
+              <span
+                key={c}
+                className="catalog-card__color-dot"
+                style={{
+                  background: getColorSwatch(c),
+                  borderColor: getColorSwatch(c) === "#ffffff" ? "#e5e7eb" : "transparent",
+                }}
+                title={c}
+                aria-hidden
+              />
+            ))}
+          </div>
+        )}
         <ProductInfo
           title={product.title ?? "Sin título"}
           price={displayPrice}

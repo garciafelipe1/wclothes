@@ -1,0 +1,235 @@
+/* ── Footer ── */
+
+.site-footer {
+  background: #0a0a0a;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: var(--font-nav), "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin-top: auto;
+  width: 100%;
+}
+
+.footer-inner {
+  width: 100%;
+  padding: 5rem clamp(2rem, 6vw, 5rem) 3rem;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 3rem 6rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.footer-heading {
+  margin: 0 0 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.footer-newsletter-form {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  max-width: 320px;
+  margin-bottom: 2rem;
+}
+
+.footer-newsletter-input {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-right: none;
+  border-radius: 0;
+  outline: none;
+  min-width: 0;
+}
+
+.footer-newsletter-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-newsletter-input:focus {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-newsletter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.footer-newsletter-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-social {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.footer-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0.9;
+}
+
+.footer-social-link:hover {
+  opacity: 1;
+}
+
+.footer-social-link svg {
+  width: 26px;
+  height: 26px;
+}
+
+.footer-links,
+.footer-contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-links li,
+.footer-contact-list li {
+  margin-bottom: 0.65rem;
+}
+
+.footer-links a,
+.footer-contact-list a {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+}
+
+.footer-links a:hover,
+.footer-contact-list a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.footer-contact-list li {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.footer-mid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem 2.5rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.footer-payment-icons {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-payment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+}
+
+.footer-payment-icon svg {
+  height: 100%;
+  width: auto;
+}
+
+.footer-payment-visa { color: #1A1F71; }
+.footer-payment-mastercard { color: inherit; }
+.footer-payment-amex { color: inherit; }
+
+.footer-payment-other {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.footer-country-select {
+  padding: 0.65rem 2.25rem 0.65rem 1rem;
+  font-size: 0.9rem;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.footer-country-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-country-select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.footer-bottom {
+  padding-top: 2.5rem;
+  text-align: center;
+}
+
+.footer-copyright,
+.footer-legal {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+}
+
+.footer-legal:last-child {
+  margin-bottom: 0;
+}
+
+.footer-legal a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .footer-inner {
+    padding: 4rem 1.5rem 2.5rem;
+  }
+
+  .footer-top {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .footer-newsletter-form {
+    max-width: 100%;
+  }
+
+  .footer-mid {
+    flex-direction: column;
+    padding: 2rem 0;
+  }
+}

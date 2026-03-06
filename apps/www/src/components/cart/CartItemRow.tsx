@@ -47,14 +47,17 @@ export function CartItemRow({
     : catalogPath
 
   const opts = item.variant_option_values
-  const sizeLabel =
-    item.variant_title ??
-    (opts != null &&
+  const optionLabels =
+    opts != null &&
     typeof opts === "object" &&
     !Array.isArray(opts) &&
     Object.keys(opts).length > 0
-      ? String(Object.values(opts)[0] ?? "")
-      : null)
+      ? (Object.entries(opts) as [string, string][])
+          .filter(([, v]) => v != null && String(v).trim())
+          .map(([k, v]) => `${k}: ${v}`)
+      : item.variant_title
+        ? [item.variant_title]
+        : []
 
   async function handleQuantityChange(delta: number) {
     const newQty = Math.max(1, quantity + delta)
@@ -127,7 +130,7 @@ export function CartItemRow({
             >
               −
             </button>
-            <span className="w-8 text-center text-sm tabular-nums" aria-live="polite">
+            <span className="w-8 text-center text-sm tabular-nums text-neutral-900" aria-live="polite">
               {quantity}
             </span>
             <button
@@ -141,13 +144,16 @@ export function CartItemRow({
             </button>
           </div>
 
-          {sizeLabel && (
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-neutral-500">Talle:</span>
-              <span className="text-sm font-medium">{sizeLabel}</span>
+          {optionLabels.length > 0 && (
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              {optionLabels.map((label) => (
+                <span key={label} className="text-sm text-neutral-700">
+                  {label}
+                </span>
+              ))}
               <Link
                 href={productPath}
-                className="text-xs text-neutral-500 hover:underline ml-1"
+                className="text-xs text-neutral-500 hover:underline"
               >
                 Cambiar
               </Link>

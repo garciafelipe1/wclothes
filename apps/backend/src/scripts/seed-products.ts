@@ -28,7 +28,7 @@ export async function SeedProducts(
   });
 
   const existingHandles = new Set(
-    (existingProducts || []).map((p: { handle?: string }) => p.handle)
+    (existingProducts || []).map((p: { handle?: string }) => p.handle).filter(Boolean)
   );
 
   const { data: existingInventoryItems } = await query.graph({
@@ -59,37 +59,52 @@ export async function SeedProducts(
     }
   };
 
-  const shouldCreate = (title: string) => !existingHandles.has(toHandle(title));
-
-  const buildProduct = (item: SeedProductItem): CreateProductWorkflowInputDTO => ({
-    title: item.title,
-    description: item.description,
-    category_ids: [
-      categories.find((c) => c.name === item.category)?.id,
-    ].filter(Boolean) as string[],
-    handle: toHandle(item.title),
-    status: ProductStatus.PUBLISHED,
-    shipping_profile_id: shippingProfileId,
-    thumbnail: item.images?.[0] ?? undefined,
-    images: item.images.map((url) => ({ url })),
-    sales_channels: [{ id: defaultSalesChannelId }],
-    metadata: item.metadata ?? {},
-    options: [{ title: "Default", values: ["Default"] }],
-    variants: [
-      {
-        title: "Default",
-        sku: uniqueSku(`${toHandle(item.title)}-default`),
-        options: { Default: "Default" },
-        prices: [
-          { amount: item.price.ars, currency_code: "ars" },
-          { amount: item.price.usd, currency_code: "usd" },
-        ],
-      },
-    ],
-  });
+  const buildProduct = (item: SeedProductItem): CreateProductWorkflowInputDTO => {
+    const hasCustomOptions = item.productOptions && item.variantOptions && item.productOptions.length > 0 && item.variantOptions.length > 0;
+    const options = hasCustomOptions
+      ? item.productOptions!
+      : [{ title: "Default", values: ["Default"] }];
+    const variants = hasCustomOptions
+      ? item.variantOptions!.map((opts, i) => ({
+          title: Object.values(opts).join(" / "),
+          sku: uniqueSku(`${toHandle(item.title)}-${i + 1}`),
+          options: opts,
+          prices: [
+            { amount: item.price.ars, currency_code: "ars" },
+            { amount: item.price.usd, currency_code: "usd" },
+          ],
+        }))
+      : [
+          {
+            title: "Default",
+            sku: uniqueSku(`${toHandle(item.title)}-default`),
+            options: { Default: "Default" },
+            prices: [
+              { amount: item.price.ars, currency_code: "ars" },
+              { amount: item.price.usd, currency_code: "usd" },
+            ],
+          },
+        ];
+    return {
+      title: item.title,
+      description: item.description,
+      category_ids: [
+        categories.find((c) => c.name === item.category)?.id,
+      ].filter(Boolean) as string[],
+      handle: toHandle(item.title),
+      status: ProductStatus.PUBLISHED,
+      shipping_profile_id: shippingProfileId,
+      thumbnail: item.images?.[0] ?? undefined,
+      images: item.images.map((url) => ({ url })),
+      sales_channels: [{ id: defaultSalesChannelId }],
+      metadata: item.metadata ?? {},
+      options,
+      variants,
+    };
+  };
 
   const productsToCreate = catalogProducts
-    .filter((i) => shouldCreate(i.title))
+    .filter((i) => !existingHandles.has(toHandle(i.title)))
     .map(buildProduct);
 
   if (productsToCreate.length === 0) {

@@ -1,7 +1,7 @@
 "use server"
 
 import { medusa } from "@/lib/medusa"
-import { getCartId, setCartId } from "@/lib/data/cookies"
+import { clearCartId, getCartId, setCartId } from "@/lib/data/cookies"
 import { getRegionByCountryCode } from "@/lib/data/regions"
 
 type AddToCartInput = {
@@ -12,6 +12,8 @@ type AddToCartInput = {
 
 /**
  * Crea o reutiliza el carrito y agrega una línea.
+ * Si el carrito guardado en cookie ya no existe (ej. tras seed:force),
+ * lo detecta, limpia la cookie y crea uno nuevo.
  * Devuelve { success, cartId, error }.
  */
 export async function addToCartAction(input: AddToCartInput): Promise<{
@@ -27,6 +29,15 @@ export async function addToCartAction(input: AddToCartInput): Promise<{
   }
 
   let cartId = await getCartId()
+
+  if (cartId) {
+    try {
+      await medusa.store.cart.retrieve(cartId)
+    } catch {
+      await clearCartId()
+      cartId = null
+    }
+  }
 
   if (!cartId) {
     try {

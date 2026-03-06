@@ -1,20 +1,11 @@
 import Link from "next/link"
 import { getLocalizedPath } from "@/i18n/routing"
-import { formatPrice } from "@/lib/format"
-import { getOrderById } from "@/services/order.service"
+import { formatPrice, formatShippingAddress } from "@/lib/format"
+import { getOrderById, type Order } from "@/services/order.service"
+import type { OrderItem } from "@/types/order"
 
 type OrderDetailPageProps = {
   params: Promise<{ locale: string; countryCode: string; orderId: string }>
-}
-
-function formatAddress(addr: { address_1?: string; postal_code?: string; city?: string; province?: string; phone?: string } | null): string {
-  if (!addr) return "—"
-  const parts: string[] = []
-  if (addr.address_1) parts.push(addr.address_1)
-  if (addr.postal_code) parts.push(`CP ${addr.postal_code}`)
-  const cityProv = [addr.city, addr.province].filter(Boolean).join(", ")
-  if (cityProv) parts.push(addr.phone ? `${cityProv} - ${addr.phone}` : cityProv)
-  return parts.length ? parts.join("\n") : "—"
 }
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
@@ -82,7 +73,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         {order.shipping_address && (
           <section className="mb-6">
             <h2 className="text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-2">Dirección de envío</h2>
-            <p className="text-sm text-neutral-800 whitespace-pre-line">{formatAddress(order.shipping_address)}</p>
+            <p className="text-sm text-neutral-800 whitespace-pre-line">{formatShippingAddress(order.shipping_address) || "—"}</p>
           </section>
         )}
 
@@ -90,7 +81,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           <h2 className="text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-3">Productos</h2>
           <ul className="space-y-3 border border-neutral-200 rounded-lg divide-y divide-neutral-100 overflow-hidden bg-white">
             {Array.isArray(items) && items.length > 0 ? (
-              items.map((item: { id: string; title?: string; quantity?: number; unit_price?: number; total?: number; thumbnail?: string; variant?: { title?: string } }) => (
+              items.map((item: OrderItem) => (
                 <li key={item.id} className="flex gap-3 p-4">
                   <div className="w-16 h-16 shrink-0 rounded-md overflow-hidden bg-neutral-100">
                     {item.thumbnail ? (
