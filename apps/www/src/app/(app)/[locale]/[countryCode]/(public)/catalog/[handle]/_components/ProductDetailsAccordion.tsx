@@ -25,7 +25,7 @@ function CareContent({ text }: { text: string }) {
           .map((p) => p.trim())
           .filter(Boolean)
           .map((part, i) => {
-            const match = part.match(/^([^:]+):\s*(.*)$/s)
+            const match = part.match(/^([^:]+):\s*([\s\S]*)$/)
             if (match) {
               return (
                 <div key={i} className="pdp-details__care-item">

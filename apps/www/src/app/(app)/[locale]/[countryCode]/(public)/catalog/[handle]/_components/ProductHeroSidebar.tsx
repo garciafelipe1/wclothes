@@ -9,7 +9,7 @@ import { addToCartAction } from "@/app/actions/cart/add-to-cart"
 import { useCartDrawer } from "@/app/context/cart-drawer"
 import { useRouter } from "next/navigation"
 
-type VariantOption = { id?: string; value?: string; option_id?: string; option?: { id?: string } }
+type VariantOption = { id?: string; value?: string; option_id?: string; option?: { id?: string; title?: string } }
 
 type Variant = {
   id: string

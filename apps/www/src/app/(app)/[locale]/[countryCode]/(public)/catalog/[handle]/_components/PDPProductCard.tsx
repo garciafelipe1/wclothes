@@ -71,7 +71,7 @@ export function PDPProductCard({ product, href }: PDPProductCardProps) {
   const hasSale = originalAmount != null && saleAmount != null && originalAmount > saleAmount
 
   const allValues = product.variants?.flatMap((v) => v.options?.map((o) => o.value).filter(Boolean) ?? []) ?? []
-  const colorValues = [...new Set(allValues)].filter((v) => v && v !== "Default")
+  const colorValues = [...new Set(allValues)].filter((v): v is string => !!v && v !== "Default")
   const hasColors = colorValues.length > 0
 
   return (
