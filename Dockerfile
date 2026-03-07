@@ -50,9 +50,9 @@ FROM base AS builder_backend
 
 COPY --from=deps /app .
 
-WORKDIR /app/apps/backend
+WORKDIR /app
 
-RUN npx medusa build
+RUN pnpm --filter @ecommerce/backend run build
 
 ####################################
 # RUNTIME – NEXT.JS

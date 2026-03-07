@@ -23,6 +23,7 @@
     "@medusajs/api-key": "2.13.1",
     "@medusajs/cli": "2.13.1",
     "@medusajs/dashboard": "2.13.1",
+    "@medusajs/draft-order": "2.13.1",
     "@medusajs/file-s3": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/icons": "2.13.1",
