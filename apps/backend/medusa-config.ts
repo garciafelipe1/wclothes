@@ -59,7 +59,8 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
   },
-  // Cache con Redis en producción cuando REDIS_URL está definida (p. ej. add-on Redis en Railway)
+  // Cache + Event Bus con Redis cuando REDIS_URL está definida (p. ej. add-on Redis en Railway)
+  // Event Bus: evita "Local Event Bus" en producción; usa la misma REDIS_URL que el cache
   modules: redisUrl
     ? [
         {
@@ -73,6 +74,18 @@ module.exports = defineConfig({
                 options: { redisUrl },
               },
             ],
+          },
+        },
+        {
+          resolve: "@medusajs/medusa/event-bus-redis",
+          options: {
+            redisUrl: process.env.EVENTS_REDIS_URL || redisUrl,
+            ...(process.env.NODE_ENV === "production" && {
+              jobOptions: {
+                removeOnComplete: { age: 3600, count: 1000 },
+                removeOnFail: { age: 3600, count: 1000 },
+              },
+            }),
           },
         },
       ]
