@@ -16,7 +16,7 @@ const DEFAULT_LIMIT = 12
 function getDateSort(order: GetStoreCustomSchemaType["order"]) {
   if (!order || order === "price_asc" || order === "price_desc") return {}
   return {
-    created_at: order === "created_at_desc" ? "DESC" as const : "ASC" as const,
+    created_at: order === "created_at_desc" ? "DESC" : "ASC",
   }
 }
 

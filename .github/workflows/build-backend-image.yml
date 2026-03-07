@@ -35,6 +35,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Si falla con "failed to fetch oauth token: ... i/o timeout", es timeout de red a ghcr.io.
+      # Re-ejecutar el workflow (Re-run failed jobs) suele resolverlo.
       - name: Build and push (Medusa Backend)
         uses: docker/build-push-action@v6
         with:

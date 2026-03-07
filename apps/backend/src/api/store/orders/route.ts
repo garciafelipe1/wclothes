@@ -42,7 +42,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         "items.variant.title",
       ],
       filters: { email },
-      pagination: { take: 50, order: { created_at: "DESC" as const } },
+      pagination: { take: 50, order: { created_at: "DESC" } },
     })
 
     const orders = Array.isArray(data) ? data : []

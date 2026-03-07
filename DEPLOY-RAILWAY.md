@@ -31,7 +31,9 @@ En el repo → Settings → Secrets and variables → Actions, agregar:
 
 **Backend:**
 - `DATABASE_URL` (desde PostgreSQL de Railway)
-- `REDIS_URL` (desde Redis de Railway)
+- **`REDIS_URL`** (desde Redis de Railway) — **obligatorio en producción** para evitar:
+  - El aviso *"connect.session() MemoryStore is not designed for a production environment"* (sesiones en memoria).
+  - El mensaje *"redisUrl not found. A fake redis instance will be used"*.
 - `JWT_SECRET`, `COOKIE_SECRET`
 - `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS` (incluir la URL del frontend)
 
@@ -96,3 +98,66 @@ Si el backend se reinicia en bucle por un error al cargar rutas API personalizad
 
 - Revisar los **logs del backend** en Railway (el error suele aparecer al arrancar: "An error occurred while registering API Routes" o "missing ) after argument list").
 - Con esa información se puede depurar la ruta concreta que falla (p. ej. `store/custom/route.ts`, `store/orders/route.ts`) y corregir sintaxis o dependencias.
+
+---
+
+## Si el error "missing ) after argument list" persiste
+
+Se aplicaron dos cambios en las rutas API para evitar que el JS generado provoque ese error:
+1. **Imports**: en `store/custom/route.ts`, `import type { ... }` en una línea e `import { getLowestPrice }` en otra (no mezclar tipo y valor en el mismo import).
+2. **`as const`**: eliminado en `store/custom/route.ts` y `store/orders/route.ts` en literales de orden (`"DESC"`, `"ASC"`) para que el compilado sea JS estándar.
+
+Si tras el push el backend en Railway sigue cayendo:
+
+### 1. Confirmar que el fix está en el commit desplegado
+
+- En el commit que Railway está construyendo debe estar el `route.ts` con:
+  - `import type { ProductWithCalculatedPrice } from "..."` en una línea.
+  - `import { getLowestPrice } from "..."` en otra.
+- No debe haber `import { getLowestPrice, type ProductWithCalculatedPrice }`.
+
+### 2. Reproducir el arranque como en Railway (local)
+
+Para ver el mismo error en local con la misma forma de arranque:
+
+```bash
+cd apps/backend
+pnpm run build
+# Arrancar como en el contenedor (usa el CLI de Medusa):
+# En Linux/mac: sh scripts/start-railway.sh
+# En Windows (PowerShell): buscar cli.js en node_modules y ejecutar:
+#   node (ruta)/cli.js start -p 8000 -H 0.0.0.0
+```
+
+Si el error aparece ahí, el stack trace indicará **archivo y línea** del código cargado (p. ej. dentro de `dist/api/...` o del loader de Medusa).
+
+### 3. Revisar el stack trace en Railway
+
+- En los logs del servicio Backend en Railway, copiar el **stack trace completo**.
+- Si dice algo como `.../dist/loaders/api.js:56`, el fallo está en el loader de Medusa al cargar una ruta; el mensaje anterior en el stack suele indicar el **archivo de tu proyecto** que provocó el error (p. ej. `dist/api/store/custom/route.js`).
+
+### 4. Comprobar todos los archivos que carga el API
+
+Archivos que participan al registrar rutas store:
+
+- `src/api/store/custom/route.ts`
+- `src/api/store/custom/validators.ts`
+- `src/api/store/custom/product/route.ts`
+- `src/api/store/custom/product/validators.ts`
+- `src/api/store/orders/route.ts`
+- `src/api/middlewares.ts`
+
+En todos ellos:
+
+- No usar alias `@/` en imports (usar rutas relativas).
+- Evitar `import { x, type Y } from "..."`; usar `import type { Y }` en una línea e `import { x }` en otra.
+- En objetos que se usan en runtime (p. ej. `order: { created_at: "DESC" }`), evitar `as const` por si el compilador en el contenedor emite algo distinto; usar el literal directo.
+- Tras cualquier cambio, ejecutar `pnpm --filter @ecommerce/backend run build` y revisar que `dist/api/.../*.js` no tenga sintaxis rara (paréntesis sin cerrar, comas faltantes).
+
+### 5. Último recurso: desplegar sin rutas custom para dejar el backend estable
+
+Si hay que tener el backend arriba ya y seguir depurando después:
+
+- Mover `apps/backend/src/api/store` a `apps/backend/src/api_store_backup` (fuera de `src/api`).
+- Build y deploy: el backend arrancará sin esas rutas; el resto de la API (admin, store por defecto) sigue funcionando.
+- Cuando se localice y corrija el fallo, volver a mover `api_store_backup` → `src/api/store` y desplegar de nuevo.
