@@ -18,20 +18,23 @@ if (!fs.existsSync(rootEnvPath) && !fs.existsSync(localEnvPath)) {
   dotenv.config()
 }
 
-// Rutas para que Vite resuelva módulos del admin (pnpm no siempre expone estos subpaths)
+// Rutas para que Vite resuelva módulos del admin (pnpm monorepo: node_modules en raíz)
+const rootDir = path.resolve(__dirname, "..", "..")
+const rootNodeModules = path.join(rootDir, "node_modules")
+
 function getDraftOrderAdminPath() {
   try {
-    const pkgDir = path.dirname(require.resolve("@medusajs/draft-order/package.json"))
+    const pkgDir = path.dirname(require.resolve("@medusajs/draft-order/package.json", { paths: [rootNodeModules] }))
     return path.join(pkgDir, ".medusa/server/src/admin/index.mjs")
   } catch {
-    return path.join(process.cwd(), "node_modules/@medusajs/draft-order/.medusa/server/src/admin/index.mjs")
+    return path.join(rootNodeModules, "@medusajs/draft-order/.medusa/server/src/admin/index.mjs")
   }
 }
 function getAdminSharedPath() {
   try {
-    return path.dirname(require.resolve("@medusajs/admin-shared/package.json"))
+    return path.dirname(require.resolve("@medusajs/admin-shared/package.json", { paths: [rootNodeModules] }))
   } catch {
-    return path.join(process.cwd(), "node_modules/@medusajs/admin-shared")
+    return path.join(rootNodeModules, "@medusajs/admin-shared")
   }
 }
 
