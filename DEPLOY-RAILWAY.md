@@ -71,6 +71,7 @@ Si el backend se reinicia en bucle por un error al cargar rutas API personalizad
 ### 1. Desplegar sin rutas personalizadas (estado actual)
 
 - Las rutas custom están en `apps/backend/src/api_store_backup/` (fuera de `src/api`), así que el loader de API de Medusa **no las carga**.
+- El script de build hace `rimraf dist && medusa build`, así que no quedan rutas viejas en `dist/api/`.
 - Desplegar el backend en Railway tal cual. Comprobar que el servicio quede **estable** (sin reinicios cada ~5 min).
 
 ### 2. Configurar Redis en Railway
