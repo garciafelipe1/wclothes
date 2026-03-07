@@ -52,11 +52,10 @@ COPY --from=deps /app .
 
 WORKDIR /app
 
-RUN pnpm --filter @ecommerce/backend run build
+# Admin build falla en pnpm monorepo (@medusajs/admin-shared no en apps/backend/node_modules)
+ENV DISABLE_MEDUSA_ADMIN=true
 
-# Medusa genera .medusa/admin/build/ pero lo sirve desde public/admin/
-RUN mkdir -p /app/apps/backend/public/admin && \
-    cp -r /app/apps/backend/.medusa/admin/build/* /app/apps/backend/public/admin/
+RUN pnpm --filter @ecommerce/backend run build
 
 # Medusa busca medusa-config (sin extensión) → resuelve a .js
 RUN cp /app/apps/backend/medusa-config.ts /app/apps/backend/medusa-config.js
@@ -101,12 +100,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8000
+ENV DISABLE_MEDUSA_ADMIN=true
 
 # Bundle autocontenido de pnpm deploy (node_modules con archivos reales, no symlinks)
 COPY --from=builder_backend /app/backend-deploy ./
-
-# Admin UI (Medusa lo sirve desde public/admin; deploy puede no incluirlo)
-COPY --from=builder_backend /app/apps/backend/public/admin ./public/admin
 
 # scripts de arranque (deploy puede no incluirlos)
 COPY --from=builder_backend /app/apps/backend/scripts ./scripts/
