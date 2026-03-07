@@ -2,7 +2,8 @@
  * GET /store/custom — Catálogo con filtros, orden y paginación.
  * Query: q, category, order, page, region_id, currency_code, min_price, max_price.
  */
-import { getLowestPrice, type ProductWithCalculatedPrice } from "../../../lib/get-lowest-price"
+import type { ProductWithCalculatedPrice } from "../../../lib/get-lowest-price"
+import { getLowestPrice } from "../../../lib/get-lowest-price"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import {
   ContainerRegistrationKeys,
