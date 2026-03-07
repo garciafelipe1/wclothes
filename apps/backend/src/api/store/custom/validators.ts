@@ -4,7 +4,7 @@ import {
   sortOptionValues,
 } from "../../../shared/constants"
 
-const categoriesList = Object.values(CATEGORIES).filter((c) => c !== "Catálogo") as [string, ...string[]]
+const categoriesList = Object.values(CATEGORIES).filter((c) => c !== CATEGORIES.catalog) as [string, ...string[]]
 
 export const GetStoreCustomSchema = z.object({
   q: z.string().optional(),

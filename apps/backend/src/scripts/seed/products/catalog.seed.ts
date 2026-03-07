@@ -2,7 +2,7 @@
  * Productos de catálogo: se cargan en la base con el script seed.
  * Imágenes: URLs públicas (Unsplash o tu CDN). Para hover, poné 2+ imágenes por producto.
  */
-import { CATEGORIES } from "@/shared/constants"
+import { CATEGORIES } from "../../../shared/constants"
 
 export type SeedProductItem = {
   title: string
