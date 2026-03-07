@@ -2,7 +2,7 @@ import { z } from "zod"
 import {
   CATEGORIES,
   sortOptionValues,
-} from "../../../shared/constants"
+} from "../../shared/constants"
 
 const categoriesList = Object.values(CATEGORIES).filter((c) => c !== CATEGORIES.catalog) as [string, ...string[]]
 
