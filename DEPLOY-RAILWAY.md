@@ -103,9 +103,10 @@ Si el backend se reinicia en bucle por un error al cargar rutas API personalizad
 
 ## Si el error "missing ) after argument list" persiste
 
-Se aplicaron dos cambios en las rutas API para evitar que el JS generado provoque ese error:
+Se aplicaron varios cambios en las rutas API para evitar que el JS generado provoque ese error:
 1. **Imports**: en `store/custom/route.ts`, `import type { ... }` en una línea e `import { getLowestPrice }` en otra (no mezclar tipo y valor en el mismo import).
-2. **`as const`**: eliminado en `store/custom/route.ts` y `store/orders/route.ts` en literales de orden (`"DESC"`, `"ASC"`) para que el compilado sea JS estándar.
+2. **`as const`**: eliminado en `store/custom/route.ts` y `store/orders/route.ts` en literales de orden (`"DESC"`, `"ASC"`). También eliminado en `store/custom/validators.ts` en `SORT_OPTIONS` y `CATEGORY_OPTIONS` (usar `z.enum(SORT_OPTIONS as [string, ...string[]])` para el tipo).
+3. **Node**: en Railway, usar Node 20 (variable `NODE_VERSION=20` o configurar en el panel) para coincidir con `engines` del backend.
 
 Si tras el push el backend en Railway sigue cayendo:
 
@@ -151,7 +152,13 @@ En todos ellos:
 
 - No usar alias `@/` en imports (usar rutas relativas).
 - Evitar `import { x, type Y } from "..."`; usar `import type { Y }` en una línea e `import { x }` en otra.
-- En objetos que se usan en runtime (p. ej. `order: { created_at: "DESC" }`), evitar `as const` por si el compilador en el contenedor emite algo distinto; usar el literal directo.
+- En objetos y arrays que se usan en runtime, evitar `as const` por si el compilado en el contenedor emite algo que el Node de Railway no parsea bien; usar el literal directo (y en validators, `z.enum(arr as [string, ...string[]])` si hace falta).
+
+### Errores típicos en los logs de Railway
+
+- **"An error occurred while registering API Routes. Error: missing ) after argument list"** → El fallo está en alguno de los archivos listados arriba; suele ser por `as const` o imports mezclados. El stack en `attributes.stack` apunta a `api.js` del loader; el archivo problemático es uno de los que ese loader está cargando.
+- **"Error starting server"** → Suele ser consecuencia del error anterior.
+- **"connect.session() MemoryStore is not designed for a production environment"** → Advertencia: en producción conviene usar Redis (configurar `REDIS_URL`); no impide que el backend arranque.
 - Tras cualquier cambio, ejecutar `pnpm --filter @ecommerce/backend run build` y revisar que `dist/api/.../*.js` no tenga sintaxis rara (paréntesis sin cerrar, comas faltantes).
 
 ### 5. Último recurso: desplegar sin rutas custom para dejar el backend estable
