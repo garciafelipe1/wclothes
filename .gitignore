@@ -47,7 +47,4 @@ Thumbs.db
 *.sqlite
 *.db
 
-# Standalone (ya no se usa, deploy vía Docker)
-backend-standalone/
-
 

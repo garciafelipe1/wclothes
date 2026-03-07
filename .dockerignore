@@ -17,4 +17,10 @@ Thumbs.db
 coverage
 .medusa
 
+# Deploy tests / builds locales (muy pesados)
+test-deploy/
+backend-deploy/
 
+# Cachés de build (se generan en Docker)
+.next/
+.turbo/

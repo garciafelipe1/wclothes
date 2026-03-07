@@ -57,6 +57,9 @@ ENV DISABLE_MEDUSA_ADMIN=true
 
 RUN pnpm --filter @ecommerce/backend run build
 
+# pnpm deploy crea un bundle autocontenido (sin symlinks al store)
+RUN pnpm --filter @ecommerce/backend deploy --prod --legacy ./backend-deploy
+
 ####################################
 # RUNTIME – NEXT.JS
 ####################################
@@ -91,20 +94,15 @@ CMD ["node", "apps/www/server.js"]
 FROM node:20-bullseye-slim AS runner_backend
 
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.14.0 --activate
 
 ENV NODE_ENV=production
 ENV PORT=8000
 
-# Copiar backend completo (dist, config, scripts)
-COPY --from=builder_backend /app/apps/backend/dist ./dist
-COPY --from=builder_backend /app/apps/backend/package.json ./
-COPY --from=builder_backend /app/apps/backend/medusa-config.ts ./
-COPY --from=builder_backend /app/apps/backend/mikro-orm.config.ts ./
-COPY --from=builder_backend /app/apps/backend/scripts ./scripts/
+# Bundle autocontenido de pnpm deploy (node_modules con archivos reales, no symlinks)
+COPY --from=builder_backend /app/backend-deploy ./
 
-# node_modules del monorepo (pnpm hoist)
-COPY --from=builder_backend /app/node_modules ./node_modules
+# scripts de arranque (deploy puede no incluirlos)
+COPY --from=builder_backend /app/apps/backend/scripts ./scripts/
 
 RUN chmod +x ./scripts/start-railway.sh
 
