@@ -11,6 +11,9 @@ coverage/
 dist/
 build/
 
+# TypeScript incremental
+*.tsbuildinfo
+
 # Environment variables
 .env
 .env.local
@@ -43,5 +46,8 @@ Thumbs.db
 # Database
 *.sqlite
 *.db
+
+# Standalone (ya no se usa, deploy vía Docker)
+backend-standalone/
 
 
