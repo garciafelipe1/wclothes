@@ -52,10 +52,11 @@ COPY --from=deps /app .
 
 WORKDIR /app
 
-# Sin admin en producción (evita errores de draft-order en pnpm/Docker)
-ENV DISABLE_MEDUSA_ADMIN=true
-
 RUN pnpm --filter @ecommerce/backend run build
+
+# Medusa genera .medusa/admin/build/ pero lo sirve desde public/admin/
+RUN mkdir -p /app/apps/backend/public/admin && \
+    cp -r /app/apps/backend/.medusa/admin/build/* /app/apps/backend/public/admin/
 
 # Medusa busca medusa-config (sin extensión) → resuelve a .js
 RUN cp /app/apps/backend/medusa-config.ts /app/apps/backend/medusa-config.js
@@ -103,6 +104,9 @@ ENV PORT=8000
 
 # Bundle autocontenido de pnpm deploy (node_modules con archivos reales, no symlinks)
 COPY --from=builder_backend /app/backend-deploy ./
+
+# Admin UI (Medusa lo sirve desde public/admin; deploy puede no incluirlo)
+COPY --from=builder_backend /app/apps/backend/public/admin ./public/admin
 
 # scripts de arranque (deploy puede no incluirlos)
 COPY --from=builder_backend /app/apps/backend/scripts ./scripts/
