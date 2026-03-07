@@ -61,3 +61,36 @@ El script `start-railway.sh` ejecuta `medusa db:migrate` antes de iniciar. La pr
 ## Seed
 
 Para cargar productos, ejecutar el seed contra la DB de producción (desde local con DATABASE_URL de prod, o desde un job temporal en Railway).
+
+---
+
+## Estrategia: desplegar sin rutas → Redis → reintroducir rutas
+
+Si el backend se reinicia en bucle por un error al cargar rutas API personalizadas, seguir este orden:
+
+### 1. Desplegar sin rutas personalizadas (estado actual)
+
+- Las rutas custom están en `apps/backend/src/api/store_backup/` (Medusa no las carga; solo carga `store/`).
+- Desplegar el backend en Railway tal cual. Comprobar que el servicio quede **estable** (sin reinicios cada ~5 min).
+
+### 2. Configurar Redis en Railway
+
+- En el proyecto Railway: **New → Database → Redis** (o add-on Redis).
+- En el servicio **Backend**, añadir variable de entorno:
+  - `REDIS_URL` = valor que Railway asigna al recurso Redis (suele aparecer en Variables o en la ficha del Redis).
+- El `medusa-config.ts` ya usa `REDIS_URL` (o `CACHE_REDIS_URL`) para activar el módulo de cache con Redis; sin esta variable se usa el cache en memoria.
+
+### 3. Comprobar estabilidad
+
+- Con Redis configurado, dejar el backend corriendo y revisar logs. No deberían aparecer avisos de MemoryStore ni reinicios inesperados.
+
+### 4. Reintroducir las rutas personalizadas
+
+- En el repo, renombrar la carpeta:
+  - `apps/backend/src/api/store_backup` → `apps/backend/src/api/store`
+- Hacer commit, volver a desplegar el backend en Railway.
+
+### 5. Si vuelve a fallar al cargar rutas
+
+- Revisar los **logs del backend** en Railway (el error suele aparecer al arrancar: "An error occurred while registering API Routes" o "missing ) after argument list").
+- Con esa información se puede depurar la ruta concreta que falla (p. ej. `store/custom/route.ts`, `store/orders/route.ts`) y corregir sintaxis o dependencias.

@@ -41,6 +41,9 @@ function getAdminSharedPath() {
   }
 }
 
+// Redis: Railway y otros proveedores suelen exponer REDIS_URL; también aceptamos CACHE_REDIS_URL
+const redisUrl = process.env.REDIS_URL || process.env.CACHE_REDIS_URL
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -56,6 +59,24 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
   },
+  // Cache con Redis en producción cuando REDIS_URL está definida (p. ej. add-on Redis en Railway)
+  modules: redisUrl
+    ? [
+        {
+          resolve: "@medusajs/medusa/caching",
+          options: {
+            providers: [
+              {
+                resolve: "@medusajs/caching-redis",
+                id: "caching-redis",
+                is_default: true,
+                options: { redisUrl },
+              },
+            ],
+          },
+        },
+      ]
+    : [],
   plugins: [],
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
