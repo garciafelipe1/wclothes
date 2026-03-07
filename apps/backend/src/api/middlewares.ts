@@ -7,12 +7,12 @@ export default defineMiddlewares({
   routes: [
     {
       matcher: "/store/custom",
-      method: "GET",
+      method: ["GET"],
       middlewares: [validateAndTransformQuery(GetStoreCustomSchema, {})],
     },
     {
       matcher: "/store/custom/product",
-      method: "GET",
+      method: ["GET"],
       middlewares: [validateAndTransformQuery(GetStoreProductSchema, {})],
     },
   ],
