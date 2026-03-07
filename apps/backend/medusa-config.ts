@@ -55,6 +55,7 @@ module.exports = defineConfig({
   },
   plugins: [],
   admin: {
+    disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
     vite: () => ({
       resolve: {
         alias: {

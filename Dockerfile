@@ -52,6 +52,9 @@ COPY --from=deps /app .
 
 WORKDIR /app
 
+# Sin admin en producción (evita errores de draft-order en pnpm/Docker)
+ENV DISABLE_MEDUSA_ADMIN=true
+
 RUN pnpm --filter @ecommerce/backend run build
 
 ####################################
