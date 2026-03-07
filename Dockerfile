@@ -57,6 +57,9 @@ ENV DISABLE_MEDUSA_ADMIN=true
 
 RUN pnpm --filter @ecommerce/backend run build
 
+# Medusa busca medusa-config (sin extensión) → resuelve a .js
+RUN cp /app/apps/backend/medusa-config.ts /app/apps/backend/medusa-config.js
+
 # pnpm deploy crea un bundle autocontenido (sin symlinks al store)
 RUN pnpm --filter @ecommerce/backend deploy --prod --legacy ./backend-deploy
 

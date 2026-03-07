@@ -18,8 +18,11 @@ if (!fs.existsSync(rootEnvPath) && !fs.existsSync(localEnvPath)) {
   dotenv.config()
 }
 
-// Rutas para que Vite resuelva módulos del admin (pnpm monorepo: node_modules en raíz)
-const rootDir = path.resolve(__dirname, "..", "..")
+// Rutas para que Vite resuelva módulos del admin
+// Monorepo: node_modules en raíz. Deploy/Docker: node_modules en __dirname
+const rootDir = fs.existsSync(path.join(__dirname, "node_modules", "@medusajs/framework"))
+  ? __dirname
+  : path.resolve(__dirname, "..", "..")
 const rootNodeModules = path.join(rootDir, "node_modules")
 
 function getDraftOrderAdminPath() {
