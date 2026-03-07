@@ -1,19 +1,16 @@
 import { z } from "zod"
-import {
-  CATEGORIES,
-  sortOptionValues,
-} from "@/shared/constants"
 
-const categoriesList = Object.values(CATEGORIES).filter((c) => c !== CATEGORIES.catalog) as [string, ...string[]]
+const SORT_OPTIONS = ["price_asc", "price_desc", "created_at_desc", "created_at_asc"] as const
+const CATEGORY_OPTIONS = ["Calzado", "Remeras"] as const
 
 export const GetStoreCustomSchema = z.object({
   q: z.string().optional(),
-  order: z.enum(sortOptionValues as [string, ...string[]]).optional(),
+  order: z.enum(SORT_OPTIONS).optional(),
   category: z
     .string()
     .optional()
     .transform((val) =>
-      val && categoriesList.includes(val) ? val : undefined
+      val && (CATEGORY_OPTIONS as readonly string[]).includes(val) ? val : undefined
     ),
   sale: z
     .string()

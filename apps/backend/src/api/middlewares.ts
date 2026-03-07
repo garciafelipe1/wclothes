@@ -1,7 +1,7 @@
 import { defineMiddlewares } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework/http"
-import { GetStoreCustomSchema } from "@/api/store/custom/validators"
-import { GetStoreProductSchema } from "@/api/store/custom/product/validators"
+import { GetStoreCustomSchema } from "./store/custom/validators"
+import { GetStoreProductSchema } from "./store/custom/product/validators"
 
 export default defineMiddlewares({
   routes: [
