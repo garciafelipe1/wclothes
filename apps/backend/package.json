@@ -21,6 +21,7 @@
     "@formatjs/intl": "3.1.6",
     "@medusajs/admin-sdk": "2.13.1",
     "@medusajs/api-key": "2.13.1",
+    "@medusajs/caching-redis": "2.13.1",
     "@medusajs/cli": "2.13.1",
     "@medusajs/dashboard": "2.13.1",
     "@medusajs/draft-order": "2.13.1",
