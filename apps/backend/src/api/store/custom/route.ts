@@ -22,10 +22,10 @@ function getDateSort(order: GetStoreCustomSchemaType["order"]) {
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const params = (req.validatedQuery ?? req.query) as GetStoreCustomSchemaType
+  const params = (req.validatedQuery != null ? req.validatedQuery : req.query) as GetStoreCustomSchemaType
 
-  const region_id = params.region_id ?? ""
-  const currency_code = params.currency_code ?? "ars"
+  const region_id = params.region_id != null ? params.region_id : ""
+  const currency_code = params.currency_code != null ? params.currency_code : "ars"
 
   const filterByTitle =
     params.q && params.q.trim()
@@ -68,7 +68,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       ? undefined
       : {
           take: DEFAULT_LIMIT,
-          skip: ((params.page ?? 1) - 1) * DEFAULT_LIMIT,
+          skip: ((params.page != null ? params.page : 1) - 1) * DEFAULT_LIMIT,
           order: orderByDate,
         },
     context: {
@@ -85,7 +85,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   if (params.category) {
     result = result.filter((p: { categories?: Array<{ name?: string }> }) =>
-      p.categories?.some((c) => c?.name === params.category)
+      p.categories && p.categories.some((c) => (c && c.name) === params.category)
     )
   }
 
@@ -94,10 +94,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   }
   if (params.color) {
     result = result.filter((p: { variants?: VariantWithOptions[] }) =>
-      p.variants?.some((v) =>
-        v.options?.some(
+      p.variants && p.variants.some((v) =>
+        v.options && v.options.some(
           (o) =>
-            (o.option?.title === "Color" || o.option?.title === "Colour") &&
+            (o.option && (o.option.title === "Color" || o.option.title === "Colour")) &&
             o.value === params.color
         )
       )
@@ -105,10 +105,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   }
   if (params.talle) {
     result = result.filter((p: { variants?: VariantWithOptions[] }) =>
-      p.variants?.some((v) =>
-        v.options?.some(
+      p.variants && p.variants.some((v) =>
+        v.options && v.options.some(
           (o) =>
-            (o.option?.title === "Talle" || o.option?.title === "Talla" || o.option?.title === "Size") &&
+            (o.option && (o.option.title === "Talle" || o.option.title === "Talla" || o.option.title === "Size")) &&
             o.value === params.talle
         )
       )
@@ -117,9 +117,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   if (params.sale) {
     result = result.filter((p: ProductWithCalculatedPrice & { variants?: Array<{ calculated_price?: { calculated_amount?: number; original_amount?: number } }> }) => {
-      for (const v of p.variants ?? []) {
-        const orig = v.calculated_price?.original_amount
-        const calc = v.calculated_price?.calculated_amount
+      const variants = p.variants != null ? p.variants : []
+      for (const v of variants) {
+        const orig = v.calculated_price && v.calculated_price.original_amount
+        const calc = v.calculated_price && v.calculated_price.calculated_amount
         if (typeof orig === "number" && typeof calc === "number" && orig > calc) return true
       }
       return false
@@ -146,7 +147,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   let outMetadata = metadata
   let totalCount: number | undefined
   if (!outMetadata) {
-    const page = (params.page ?? 1) - 1
+    const page = (params.page != null ? params.page : 1) - 1
     const skip = page * DEFAULT_LIMIT
     totalCount = result.length
     const slice = result.slice(skip, skip + DEFAULT_LIMIT)

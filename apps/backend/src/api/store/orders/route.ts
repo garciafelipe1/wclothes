@@ -5,7 +5,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const email = (req.query?.email as string)?.trim?.()
+  const email = req.query && req.query.email != null ? String(req.query.email).trim() : ""
   if (!email) {
     res.status(400).json({ error: "Falta el parámetro email" })
     return

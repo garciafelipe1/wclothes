@@ -11,8 +11,9 @@ export function getLowestPrice(
   product: ProductWithCalculatedPrice
 ): number {
   let lowest = Infinity
-  for (const v of product.variants ?? []) {
-    const amount = v.calculated_price?.calculated_amount
+  const variants = product.variants != null ? product.variants : []
+  for (const v of variants) {
+    const amount = v.calculated_price && v.calculated_price.calculated_amount
     if (typeof amount === "number") {
       lowest = Math.min(lowest, amount)
     }

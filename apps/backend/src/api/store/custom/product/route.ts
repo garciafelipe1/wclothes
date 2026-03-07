@@ -10,9 +10,9 @@ import {
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const handle = (req.query?.handle as string)?.trim()
-  const region_id = (req.query?.region_id as string) ?? ""
-  const currency_code = (req.query?.currency_code as string) ?? "ars"
+  const handle = req.query && req.query.handle != null ? String(req.query.handle).trim() : ""
+  const region_id = req.query && req.query.region_id != null ? String(req.query.region_id) : ""
+  const currency_code = req.query && req.query.currency_code != null ? String(req.query.currency_code) : "ars"
 
   if (!handle) {
     res.status(400).json({ error: "handle is required" })
@@ -74,15 +74,15 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     }>
   }
 
-  const options = (product.options ?? []).map((o) => ({
+  const options = (product.options != null ? product.options : []).map((o) => ({
     id: o.id,
     title: o.title,
   }))
-  const variants = (product.variants ?? []).map((v) => ({
+  const variants = (product.variants != null ? product.variants : []).map((v) => ({
     id: v.id,
     title: v.title,
     calculated_price: v.calculated_price,
-    options: (v.options ?? []).map((vo) => ({
+    options: (v.options != null ? v.options : []).map((vo) => ({
       option_id: vo.option_id,
       value: vo.value,
     })),

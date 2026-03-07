@@ -16,8 +16,8 @@ export const GetStoreCustomSchema = z.object({
     .string()
     .optional()
     .transform((val) => val === "1" || val === "true"),
-  color: z.string().optional().transform((v) => (v?.trim() || undefined)),
-  talle: z.string().optional().transform((v) => (v?.trim() || undefined)),
+  color: z.string().optional().transform((v) => (typeof v === "string" ? v.trim() : undefined) || undefined),
+  talle: z.string().optional().transform((v) => (typeof v === "string" ? v.trim() : undefined) || undefined),
   min_price: z.preprocess((val) => {
     if (val != null && typeof val === "string") return parseInt(val, 10)
     return val
