@@ -70,7 +70,7 @@ export async function getCartWithItems(cartId: string | null): Promise<Cart | nu
 
 /**
  * Devuelve la cantidad de ítems en el carrito (para el badge del nav).
- * Usar desde Server Components (ej. layout).
+ * Usar desde Server Components (ej. layout). No modifica cookies (no permitido en render).
  */
 export async function getCartCount(): Promise<number> {
   const cartId = await getCartId()
@@ -82,7 +82,8 @@ export async function getCartCount(): Promise<number> {
     const items = cart?.items ?? []
     return Array.isArray(items) ? items.length : 0
   } catch {
-    await clearCartId()
+    // No llamar clearCartId() aquí: las cookies solo se pueden modificar en Server Actions o Route Handlers.
+    // La cookie inválida se limpiará en getOrSetCart (Server Action) cuando el usuario interactúe con el carrito.
     return 0
   }
 }

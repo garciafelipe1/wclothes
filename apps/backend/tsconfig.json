@@ -23,5 +23,5 @@
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "src/api_store_backup"]
+  "exclude": ["node_modules", "dist"]
 }
