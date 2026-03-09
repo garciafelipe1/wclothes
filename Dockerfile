@@ -73,6 +73,10 @@ RUN pnpm --filter @ecommerce/backend deploy --prod --legacy ./backend-deploy
 # Asegurar que el bundle final no tenga api_store_backup (causa "missing ) after argument list")
 RUN rm -rf /app/backend-deploy/api_store_backup /app/backend-deploy/dist/api_store_backup 2>/dev/null || true
 
+# Comprobar que las rutas API cargan sin error de sintaxis (si falla, el build falla y en logs se ve el archivo)
+RUN cp /app/apps/backend/scripts/check-api-routes.js /app/backend-deploy/scripts/ && \
+    cd /app/backend-deploy && node scripts/check-api-routes.js
+
 ####################################
 # RUNTIME – NEXT.JS
 ####################################

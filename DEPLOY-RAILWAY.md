@@ -167,6 +167,10 @@ En todos ellos:
 - Evitar `import { x, type Y } from "..."`; usar `import type { Y }` en una línea e `import { x }` en otra.
 - En objetos y arrays que se usan en runtime, evitar `as const` por si el compilado en el contenedor emite algo que el Node de Railway no parsea bien; usar el literal directo (y en validators, `z.enum(arr as [string, ...string[]])` si hace falta).
 
+### Diagnóstico en el build (Docker)
+
+En el Dockerfile, después de `pnpm deploy`, se ejecuta **`scripts/check-api-routes.js`**: intenta cargar cada archivo de rutas API. Si alguno da error de sintaxis (p. ej. "missing ) after argument list"), el **build falla** y en los logs de Railway verás **`FAILED: dist/api/...`** con el archivo concreto. Con eso podés corregir ese archivo o su dependencia (p. ej. sin `?.`/`??` en el código que se compila ahí).
+
 ### Errores típicos en los logs de Railway
 
 - **"An error occurred while registering API Routes. Error: missing ) after argument list"** → El fallo está en alguno de los archivos listados arriba; suele ser por `as const` o imports mezclados. El stack en `attributes.stack` apunta a `api.js` del loader; el archivo problemático es uno de los que ese loader está cargando.
