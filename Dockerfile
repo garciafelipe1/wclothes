@@ -48,6 +48,10 @@ RUN pnpm -C apps/www build
 ####################################
 FROM base AS builder_backend
 
+# Invalida caché al cambiar en Railway (Build Variables: CACHE_BUST=2, etc.)
+ARG CACHE_BUST=
+RUN echo "Build cache bust: ${CACHE_BUST:-none}"
+
 COPY --from=deps /app .
 
 WORKDIR /app
@@ -57,11 +61,17 @@ ENV DISABLE_MEDUSA_ADMIN=true
 
 RUN pnpm --filter @ecommerce/backend run build
 
+# Evitar que rutas antiguas (api_store_backup) entren en dist por caché o desplegues viejos
+RUN rm -rf /app/apps/backend/dist/api_store_backup 2>/dev/null || true
+
 # Medusa busca medusa-config (sin extensión) → resuelve a .js
 RUN cp /app/apps/backend/medusa-config.ts /app/apps/backend/medusa-config.js
 
 # pnpm deploy crea un bundle autocontenido (sin symlinks al store)
 RUN pnpm --filter @ecommerce/backend deploy --prod --legacy ./backend-deploy
+
+# Asegurar que el bundle final no tenga api_store_backup (causa "missing ) after argument list")
+RUN rm -rf /app/backend-deploy/api_store_backup /app/backend-deploy/dist/api_store_backup 2>/dev/null || true
 
 ####################################
 # RUNTIME – NEXT.JS

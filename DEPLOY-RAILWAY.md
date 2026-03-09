@@ -66,15 +66,31 @@ Para cargar productos, ejecutar el seed contra la DB de producción (desde local
 
 ---
 
+## Si ves 502 en GET / y el backend no arranca
+
+- **502** significa que el proxy (Railway) no recibe respuesta del backend: el proceso de Medusa **no llega a escuchar** en el puerto (p. ej. falla al registrar rutas API y hace exit).
+- Si en los logs sigue saliendo **"An error occurred while registering API Routes. Error: missing ) after argument list"** pero en local el build ya está bien (sin `api_store_backup`, sin `?.`/`??` en `dist/api`), suele ser **caché de build** en Railway.
+
+**Qué hacer:**
+
+1. **Limpiar caché de build y volver a desplegar**
+   - En Railway: proyecto → servicio **Backend** → pestaña **Settings** (o **Deploy**).
+   - Buscar opción **"Clear build cache"** / **"Redeploy"** con opción de **"Clear cache"** o **"Rebuild from scratch"**.
+   - Ejecutar un **nuevo deploy** con caché limpia para que use el código actual del repo (sin `api_store_backup`).
+2. Si usas **Dockerfile** en la raíz: comprobar que el servicio Backend use **Build** con Dockerfile y target **`runner_backend`**, y que el **Root Directory** sea el del monorepo (o el que corresponda según tu setup). Para forzar un build sin caché, en Railway → Backend → **Variables** añade una **Build Variable** (o Build Argument): `CACHE_BUST` = `1` (o `2`, `3`… al cambiar el valor se reconstruyen las capas).
+3. Tras el redeploy, revisar de nuevo los logs; si el error desaparece, el backend debería quedar en **Running** y dejar de devolver 502.
+
+---
+
 ## Estrategia: desplegar sin rutas → Redis → reintroducir rutas
 
 Si el backend se reinicia en bucle por un error al cargar rutas API personalizadas, seguir este orden:
 
 ### 1. Desplegar sin rutas personalizadas (estado actual)
 
-- Las rutas custom están en `apps/backend/src/api_store_backup/` (fuera de `src/api`), así que el loader de API de Medusa **no las carga**.
-- El script de build hace `rimraf dist && medusa build`, así que no quedan rutas viejas en `dist/api/`.
-- Desplegar el backend en Railway tal cual. Comprobar que el servicio quede **estable** (sin reinicios cada ~5 min).
+- Las rutas custom están en `apps/backend/src/api/` (store/custom, store/orders, etc.). La carpeta `api_store_backup` fue **eliminada** para evitar que el loader cargara código antiguo.
+- El script de build hace `rimraf dist && medusa build`; en `dist/api/` solo quedan las rutas actuales.
+- Desplegar el backend en Railway. Si sigue fallando, **limpiar caché de build** (ver sección "Si ves 502..." arriba).
 
 ### 2. Configurar Redis en Railway
 
@@ -87,12 +103,9 @@ Si el backend se reinicia en bucle por un error al cargar rutas API personalizad
 
 - Con Redis configurado, dejar el backend corriendo y revisar logs. No deberían aparecer avisos de MemoryStore ni reinicios inesperados.
 
-### 4. Reintroducir las rutas personalizadas
+### 4. Rutas personalizadas
 
-- En el repo, mover la carpeta de vuelta bajo `src/api` con el nombre que Medusa expone como scope:
-  - `apps/backend/src/api_store_backup` → `apps/backend/src/api/store`
-- Revisar imports relativos en esas rutas (p. ej. `../../lib` y `../../shared` deben volver a `../../../lib` y `../../../shared` porque la ruta será `src/api/store/...`).
-- Hacer commit, volver a desplegar el backend en Railway.
+- Las rutas ya están en `apps/backend/src/api/store/` (custom, orders, etc.). No hay que mover ninguna carpeta; si hubieras tenido un backup, no lo coloques bajo `src/api` con nombre que el loader pueda confundir (evitar duplicar rutas en `dist`).
 
 ### 5. Si vuelve a fallar al cargar rutas
 
