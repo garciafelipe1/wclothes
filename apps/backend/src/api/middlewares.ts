@@ -10,12 +10,12 @@ export default defineMiddlewares({
     {
       matcher: "/store/custom",
       method: "GET",
-      middlewares: [validateAndTransformQuery(GetStoreCustomSchema as SchemaForValidate, {})],
+      middlewares: [validateAndTransformQuery(GetStoreCustomSchema as unknown as SchemaForValidate, {})],
     },
     {
       matcher: "/store/custom/product",
       method: "GET",
-      middlewares: [validateAndTransformQuery(GetStoreProductSchema as SchemaForValidate, {})],
+      middlewares: [validateAndTransformQuery(GetStoreProductSchema as unknown as SchemaForValidate, {})],
     },
   ],
 })
