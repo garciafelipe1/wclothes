@@ -6,6 +6,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Evitar que Medusa exija el build del admin (index.html) al arrancar
+ENV DISABLE_MEDUSA_ADMIN=true
+
 RUN apk add --no-cache python3 make g++ postgresql-client
 
 RUN corepack enable
