@@ -36,6 +36,7 @@ En el repo → Settings → Secrets and variables → Actions, agregar:
   - El mensaje *"redisUrl not found. A fake redis instance will be used"*.
 - `JWT_SECRET`, `COOKIE_SECRET`
 - `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS` (incluir la URL del frontend)
+- **`ADMIN_EMAIL`** y **`ADMIN_PASSWORD`**: al arrancar, si están definidas, el script crea un usuario admin con ese email/contraseña para poder entrar al dashboard en `/app`. Si el usuario ya existe, el comando se ignora.
 
 **Frontend (build args ya van en la imagen; para runtime si hace falta):**
 - Las variables `NEXT_PUBLIC_*` se embeben en el build. Si cambiás la URL del backend, hay que rebuildear la imagen.
