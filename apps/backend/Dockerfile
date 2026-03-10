@@ -6,8 +6,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Admin: por defecto habilitado para que /app funcione en Railway.
-# Para deshabilitarlo: en Railway Variables poné DISABLE_MEDUSA_ADMIN=true
+# No deshabilitar el admin aquí: así "medusa build" pre-compila el dashboard en .medusa/server/public/admin
+# y al arrancar el servidor solo sirve esos archivos (sin Vite en runtime) → arranque rápido, /app disponible.
+# Para deshabilitar /app en Railway: Variables → DISABLE_MEDUSA_ADMIN=true
 RUN apk add --no-cache python3 make g++ postgresql-client
 
 RUN corepack enable

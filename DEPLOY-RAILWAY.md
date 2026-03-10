@@ -99,9 +99,9 @@ Así el backend acepta peticiones desde el frontend.
 
 ### Medusa Admin (panel en `/app`)
 
-El backend sirve el **Medusa Admin** en **`https://TU-BACKEND.up.railway.app/app`**. Por defecto está **habilitado**. Para deshabilitarlo (por ejemplo si solo usás la store y no el panel): en el servicio Backend → Variables → **`DISABLE_MEDUSA_ADMIN`** = **`true`**. Si no está definida o es `false`, `/app` responde con el panel de administración.
+El **dashboard** se sirve en **`https://TU-BACKEND.up.railway.app/app`**. En el Dockerfile el admin **no** está deshabilitado: así `medusa build` **pre-compila** el panel en la imagen (en `.medusa/server/public/admin`). Al arrancar, el servidor solo sirve esos archivos y no ejecuta Vite, así que el arranque es rápido y **`/app`** debería responder sin 502.
 
-En Railway conviene tener **ADMIN_CORS** (y **AUTH_CORS**) con la URL pública del backend para que el login del admin funcione desde el navegador (ej. `https://ecommerce-backend-production-xxxx.up.railway.app`).
+Para **ocultar** el panel (solo API y store): en el servicio Backend → Variables → **`DISABLE_MEDUSA_ADMIN`** = **`true`** y redeploy. Configurá **ADMIN_CORS** y **AUTH_CORS** con la URL pública del backend para que el login del admin funcione desde el navegador.
 
 ## Orden de deploy
 
