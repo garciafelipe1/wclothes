@@ -20,12 +20,11 @@ RUN pnpm install
 # Resto del proyecto y build
 COPY . .
 
-# Build con admin habilitado (rompe caché de builds anteriores sin admin)
-ENV DISABLE_MEDUSA_ADMIN=false
-# Build del backend (genera dist/ y .medusa/client/ con el admin; en 2.13 no es .medusa/server/public/admin)
+# Build del backend (admin siempre habilitado; se copia a public/admin) (genera dist/ y .medusa/client/ con el admin; en 2.13 no es .medusa/server/public/admin)
 RUN pnpm run build
-# Medusa 2.13 escribe el admin en .medusa/client/; el servidor busca .medusa/server/public/admin → copiamos
-RUN mkdir -p .medusa/server/public/admin && cp -r .medusa/client/. .medusa/server/public/admin/
+# El servidor busca index.html en ./public/admin/ (ADMIN_RELATIVE_OUTPUT_DIR). Medusa 2.13 escribe en .medusa/client/
+RUN mkdir -p public/admin && cp -r .medusa/client/. public/admin/
+RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe tras el copy" && ls -la .medusa/client/ 2>/dev/null; exit 1)
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
 RUN rm -rf dist/api_store_backup 2>/dev/null || true

@@ -99,9 +99,7 @@ Así el backend acepta peticiones desde el frontend.
 
 ### Medusa Admin (panel en `/app`)
 
-El **dashboard** se sirve en **`https://TU-BACKEND.up.railway.app/app`**. En el Dockerfile el admin se **pre-compila** en la imagen (`medusa build` con `DISABLE_MEDUSA_ADMIN=false`). Si seguís teniendo **502 en /app**: en Railway → servicio Backend → **Settings** → **Build** → **Clear build cache** y volvé a desplegar (así se reconstruye el admin en la imagen).
-
-Para **ocultar** el panel (solo API y store): en el servicio Backend → Variables → **`DISABLE_MEDUSA_ADMIN`** = **`true`** y redeploy. Configurá **ADMIN_CORS** y **AUTH_CORS** con la URL pública del backend para que el login del admin funcione desde el navegador.
+El **dashboard** se sirve en **`https://TU-BACKEND.up.railway.app/app`**. El admin se pre-compila en la imagen y se copia a `public/admin`. Si ves **502 en /app**, en Railway → Backend → **Settings** → **Build** → **Clear build cache** y redeploy. Configurá **ADMIN_CORS** y **AUTH_CORS** con la URL pública del backend para que el login del admin funcione.
 
 ## Orden de deploy
 
