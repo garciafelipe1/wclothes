@@ -6,9 +6,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# No deshabilitar el admin aquí: así "medusa build" pre-compila el dashboard en .medusa/server/public/admin
-# y al arrancar el servidor solo sirve esos archivos (sin Vite en runtime) → arranque rápido, /app disponible.
-# Para deshabilitar /app en Railway: Variables → DISABLE_MEDUSA_ADMIN=true
+# Admin: forzar build en imagen (evita caché de cuando estaba deshabilitado).
+# "medusa build" escribe el dashboard en .medusa/server/public/admin; sin esto el servidor compila Vite al arrancar → 502.
 RUN apk add --no-cache python3 make g++ postgresql-client
 
 RUN corepack enable
@@ -21,8 +20,12 @@ RUN pnpm install
 # Resto del proyecto y build
 COPY . .
 
-# Build del backend (genera dist/)
+# Build con admin habilitado (rompe caché de builds anteriores sin admin)
+ENV DISABLE_MEDUSA_ADMIN=false
+# Build del backend (genera dist/ y .medusa/server con admin en public/admin)
 RUN pnpm run build
+# Verificar que el admin se generó (si falta, el servidor intentaría compilar en runtime → timeout)
+RUN test -d .medusa/server/public/admin || (echo "ERROR: admin no se generó en .medusa/server/public/admin" && exit 1)
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
 RUN rm -rf dist/api_store_backup 2>/dev/null || true
