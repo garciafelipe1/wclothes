@@ -49,6 +49,54 @@ En lugar de usar imágenes pre-construidas, Railway puede construir desde el rep
 
 Configurar en Railway el target del build según el servicio.
 
+---
+
+## Desplegar el frontend (www) en Railway – paso a paso
+
+El frontend usa el **Dockerfile de la raíz** del repo con target **`runner_www`** (monorepo).
+
+### 1. Crear el servicio Frontend
+
+1. En tu proyecto Railway → **+ New** → **GitHub Repo** (o **Empty Service** si ya tenés el repo conectado).
+2. Si elegís **GitHub Repo**, seleccioná **garciafelipe1/wclothes** y la rama **main**.
+3. Si el proyecto ya tiene otros servicios, **+ New** → **GitHub Repo** y de nuevo el mismo repo (Railway crea un servicio nuevo del mismo repo).
+
+### 2. Configurar el build
+
+1. Entrá al **servicio** que va a ser el frontend (podés renombrarlo a "www" o "Frontend").
+2. **Settings** (o la pestaña donde está Source/Build):
+   - **Root Directory**: dejalo **vacío** (raíz del repo). No pongas `apps/www`.
+   - **Builder**: **Dockerfile**.
+   - **Dockerfile Path**: **`Dockerfile.www`** (en la raíz del repo).  
+     Railway no permite elegir "target" del Dockerfile; por eso existe `Dockerfile.www`, que solo construye el frontend y así la imagen final es Next.js, no el backend.
+
+### 3. Variables de entorno (Build)
+
+Las variables `NEXT_PUBLIC_*` se embeben en el build de Next.js. Configuralas **antes** del primer deploy (o en **Variables** como Build Variables):
+
+| Variable | Valor | Obligatorio |
+|----------|--------|-------------|
+| `NEXT_PUBLIC_MEDUSA_BACKEND_URL` | URL del backend, ej. `https://ecommerce-backend-production-4529.up.railway.app` | Sí |
+| `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` | Publishable key de Medusa (después del seed del backend) | Recomendado |
+| `NEXT_PUBLIC_DEFAULT_COUNTRY` | Ej. `ar` | Opcional |
+
+La URL del backend la copiás desde el servicio Backend en Railway → **Networking** → dominio público.
+
+### 4. Deploy
+
+1. Guardá los cambios (Root Directory, Dockerfile, Target, Variables).
+2. **Deploy** (o **Redeploy** si ya hubo un deploy). Railway va a construir con el Dockerfile de la raíz, target `runner_www`.
+3. Cuando termine, en **Networking** vas a tener un dominio público para el frontend (ej. `ecommerce-www-production-xxxx.up.railway.app`). Esa es la URL de la tienda.
+
+### 5. CORS en el backend
+
+En el **servicio Backend** → **Variables**, asegurate de tener **STORE_CORS** (y si usás admin, ADMIN_CORS / AUTH_CORS) con la URL del frontend, ej.:
+
+- `STORE_CORS` = `https://ecommerce-www-production-xxxx.up.railway.app`  
+  (reemplazá por el dominio real que te dé Railway para el frontend)
+
+Así el backend acepta peticiones desde el frontend.
+
 ## Orden de deploy
 
 1. PostgreSQL (crear primero)

@@ -1,0 +1,58 @@
+# Frontend (Next.js) – para Railway. Solo etapas www; así Railway usa la última etapa = runner_www.
+# En el servicio Frontend: Dockerfile Path = Dockerfile.www
+
+# syntax=docker/dockerfile:1.7
+FROM node:20-bullseye AS base
+RUN apt-get update && apt-get install -y bash curl \
+  && rm -rf /var/lib/apt/lists/* \
+  && corepack enable && corepack prepare pnpm@10.14.0 --activate
+
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+WORKDIR /app
+
+FROM base AS deps
+RUN apt-get update && apt-get install -y python3 make g++ pkg-config \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+RUN pnpm fetch
+
+COPY . .
+RUN pnpm install --frozen-lockfile --offline
+
+FROM base AS builder_www
+ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_DEFAULT_COUNTRY
+
+ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_DEFAULT_COUNTRY=$NEXT_PUBLIC_DEFAULT_COUNTRY
+
+COPY --from=deps /app .
+RUN pnpm -C apps/www build
+
+FROM node:20-bullseye-slim AS runner_www
+ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_DEFAULT_COUNTRY
+
+ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_DEFAULT_COUNTRY=$NEXT_PUBLIC_DEFAULT_COUNTRY
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+WORKDIR /app
+
+COPY --from=builder_www /app/apps/www/.next/standalone ./
+COPY --from=builder_www /app/apps/www/.next/static ./apps/www/.next/static
+COPY --from=builder_www /app/apps/www/public ./apps/www/public
+
+USER node
+EXPOSE 3000
+
+CMD ["node", "apps/www/server.js"]
