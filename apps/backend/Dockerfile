@@ -19,23 +19,28 @@ RUN pnpm install
 # Resto del proyecto y build
 COPY . .
 
-# Build del backend (admin habilitado). Medusa 2.13 escribe el bundle en .medusa/server/public/admin; .medusa/client son fuentes (entry.jsx sin compilar).
+# Build del backend (incluye build del servidor; admin puede no generarse en server/public/admin en 2.13).
 RUN pnpm run build
-# Servidor sirve desde ./public/admin/. Priorizar build real (bundles JS/CSS) sobre .medusa/client (solo dev).
+# Build explícito del admin: --admin-only escribe bundle completo en .medusa/admin (no fuentes en .medusa/client).
+RUN npx medusa build --admin-only 2>/dev/null || true
+# Servidor sirve desde ./public/admin/. Usar .medusa/admin (bundle real) > server/public/admin > .medusa/client (fallback).
 RUN mkdir -p public/admin && \
-  if [ -d ".medusa/server/public/admin" ] && [ -f ".medusa/server/public/admin/index.html" ]; then \
+  if [ -d ".medusa/admin" ] && [ -f ".medusa/admin/index.html" ]; then \
+    cp -r .medusa/admin/. public/admin/; \
+    echo "Admin: copiado desde .medusa/admin (build --admin-only)"; \
+  elif [ -d ".medusa/server/public/admin" ] && [ -f ".medusa/server/public/admin/index.html" ]; then \
     cp -r .medusa/server/public/admin/. public/admin/; \
-    echo "Admin: copiado desde .medusa/server/public/admin (build)"; \
+    echo "Admin: copiado desde .medusa/server/public/admin"; \
   else \
     cp -r .medusa/client/. public/admin/; \
-    echo "Admin: fallback .medusa/client (revisar que medusa build genere server/public/admin)"; \
+    echo "Admin: fallback .medusa/client"; \
   fi
-# Sin <base href="/app/"> el navegador pide ./entry.jsx como /entry.jsx; con base pide /app/entry.jsx y assets bajo /app/
+# Sin <base href="/app/"> el navegador pide assets en ruta raíz; con base los pide bajo /app/
 RUN grep -q '<base href="/app/">' public/admin/index.html 2>/dev/null || \
   sed -i 's|<head>|<head><base href="/app/">|' public/admin/index.html
-# .jsx se sirve con MIME text/jsx y el navegador rechaza módulos; renombrar a .js para application/javascript
+# .jsx → MIME text/jsx (navegador rechaza); renombrar a .js para application/javascript
 RUN if [ -f public/admin/entry.jsx ]; then mv public/admin/entry.jsx public/admin/entry.js && sed -i 's|entry\.jsx|entry.js|g' public/admin/index.html; fi
-RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe" && ls -la .medusa/client/ .medusa/server/public/admin 2>/dev/null; exit 1)
+RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe" && ls -la .medusa/ 2>/dev/null; exit 1)
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
 RUN rm -rf dist/api_store_backup 2>/dev/null || true
