@@ -22,10 +22,10 @@ COPY . .
 
 # Build con admin habilitado (rompe caché de builds anteriores sin admin)
 ENV DISABLE_MEDUSA_ADMIN=false
-# Build del backend (genera dist/ y .medusa/server con admin en public/admin)
+# Build del backend (genera dist/ y .medusa/client/ con el admin; en 2.13 no es .medusa/server/public/admin)
 RUN pnpm run build
-# Verificar que el admin se generó (si falta, el servidor intentaría compilar en runtime → timeout)
-RUN test -d .medusa/server/public/admin || (echo "ERROR: admin no se generó en .medusa/server/public/admin" && exit 1)
+# Medusa 2.13 escribe el admin en .medusa/client/; el servidor busca .medusa/server/public/admin → copiamos
+RUN mkdir -p .medusa/server/public/admin && cp -r .medusa/client/. .medusa/server/public/admin/
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
 RUN rm -rf dist/api_store_backup 2>/dev/null || true
