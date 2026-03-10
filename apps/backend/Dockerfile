@@ -33,6 +33,8 @@ RUN mkdir -p public/admin && \
 # Sin <base href="/app/"> el navegador pide ./entry.jsx como /entry.jsx; con base pide /app/entry.jsx y assets bajo /app/
 RUN grep -q '<base href="/app/">' public/admin/index.html 2>/dev/null || \
   sed -i 's|<head>|<head><base href="/app/">|' public/admin/index.html
+# .jsx se sirve con MIME text/jsx y el navegador rechaza módulos; renombrar a .js para application/javascript
+RUN if [ -f public/admin/entry.jsx ]; then mv public/admin/entry.jsx public/admin/entry.js && sed -i 's|entry\.jsx|entry.js|g' public/admin/index.html; fi
 RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe" && ls -la .medusa/client/ .medusa/server/public/admin 2>/dev/null; exit 1)
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
