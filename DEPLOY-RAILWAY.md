@@ -99,7 +99,9 @@ Así el backend acepta peticiones desde el frontend.
 
 ### Medusa Admin (panel en `/app`)
 
-El **dashboard** se sirve en **`https://TU-BACKEND.up.railway.app/app`**. El admin se pre-compila en la imagen y se copia a `public/admin`. Si ves **502 en /app**, en Railway → Backend → **Settings** → **Build** → **Clear build cache** y redeploy. Configurá **ADMIN_CORS** y **AUTH_CORS** con la URL pública del backend para que el login del admin funcione.
+El **dashboard** se sirve en **`https://TU-BACKEND.up.railway.app/app`**. El admin se pre-compila en la imagen: `medusa build` (sin `--admin-only`) escribe el bundle en **`.medusa/server/public/admin`**; el Dockerfile de `apps/backend` copia ese directorio (o, si no existe, `.medusa/client` como fallback) a **`public/admin`**, que es desde donde el servidor sirve `/app`. Si ves **502 en /app**, en Railway → Backend → **Settings** → **Build** → **Clear build cache** y redeploy. Configurá **ADMIN_CORS** y **AUTH_CORS** con la URL pública del backend para que el login del admin funcione.
+
+**Si GET /app devuelve 200 pero el panel no carga (pantalla en blanco):** suele ser porque el servidor está sirviendo **HTML** (index.html) en lugar del **JavaScript** para rutas como `/app/entry.jsx` o `/app/assets/*`. En el navegador: DevTools → **Network** → recargar `/app` y revisar la petición al script principal (p. ej. `entry.jsx` o `entry-*.js`): el **Type** debe ser `application/javascript` y el **tamaño** debe ser grande (varios KB o más). Si el tipo es `text/html` o el tamaño es ~400–500 bytes, el build del admin no se está usando (se está sirviendo el fallback SPA o fuentes de desarrollo). Solución: asegurar que en la imagen se use el contenido de **`.medusa/server/public/admin`** (el Dockerfile de `apps/backend` ya prioriza ese directorio cuando existe tras `medusa build`). Si en los logs del build en Railway aparece "Admin: fallback .medusa/client", el build de Medusa no generó `server/public/admin`; en ese caso revisar versión de `@medusajs/*` y que el admin no esté deshabilitado en `medusa-config.ts`.
 
 ## Orden de deploy
 

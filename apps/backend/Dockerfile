@@ -6,8 +6,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Admin: forzar build en imagen (evita caché de cuando estaba deshabilitado).
-# "medusa build" escribe el dashboard en .medusa/server/public/admin; sin esto el servidor compila Vite al arrancar → 502.
+# Admin: "medusa build" (sin --admin-only) escribe el dashboard en .medusa/server/public/admin; se copia a public/admin para servir en /app.
 RUN apk add --no-cache python3 make g++ postgresql-client
 
 RUN corepack enable
@@ -20,13 +19,21 @@ RUN pnpm install
 # Resto del proyecto y build
 COPY . .
 
-# Build del backend (admin siempre habilitado; se copia a public/admin) (genera dist/ y .medusa/client/ con el admin; en 2.13 no es .medusa/server/public/admin)
+# Build del backend (admin habilitado). Medusa 2.13 escribe el bundle en .medusa/server/public/admin; .medusa/client son fuentes (entry.jsx sin compilar).
 RUN pnpm run build
-# El servidor busca index.html en ./public/admin/ (ADMIN_RELATIVE_OUTPUT_DIR). Medusa 2.13 escribe en .medusa/client/
-RUN mkdir -p public/admin && cp -r .medusa/client/. public/admin/
-# Sin <base href="/app/"> el navegador pide ./entry.jsx como /entry.jsx → 404. Con base, pide /app/entry.jsx.
-RUN sed -i 's|<head>|<head><base href="/app/">|' public/admin/index.html
-RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe tras el copy" && ls -la .medusa/client/ 2>/dev/null; exit 1)
+# Servidor sirve desde ./public/admin/. Priorizar build real (bundles JS/CSS) sobre .medusa/client (solo dev).
+RUN mkdir -p public/admin && \
+  if [ -d ".medusa/server/public/admin" ] && [ -f ".medusa/server/public/admin/index.html" ]; then \
+    cp -r .medusa/server/public/admin/. public/admin/; \
+    echo "Admin: copiado desde .medusa/server/public/admin (build)"; \
+  else \
+    cp -r .medusa/client/. public/admin/; \
+    echo "Admin: fallback .medusa/client (revisar que medusa build genere server/public/admin)"; \
+  fi
+# Sin <base href="/app/"> el navegador pide ./entry.jsx como /entry.jsx; con base pide /app/entry.jsx y assets bajo /app/
+RUN grep -q '<base href="/app/">' public/admin/index.html 2>/dev/null || \
+  sed -i 's|<head>|<head><base href="/app/">|' public/admin/index.html
+RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe" && ls -la .medusa/client/ .medusa/server/public/admin 2>/dev/null; exit 1)
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
 RUN rm -rf dist/api_store_backup 2>/dev/null || true
