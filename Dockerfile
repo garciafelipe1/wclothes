@@ -22,10 +22,10 @@ RUN apt-get update && apt-get install -y python3 make g++ pkg-config \
   && rm -rf /var/lib/apt/lists/*
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-RUN --mount=type=cache,id=build-pnpm-store,target=/pnpm/store pnpm fetch
+RUN pnpm fetch
 
 COPY . .
-RUN --mount=type=cache,id=build-pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile --offline
+RUN pnpm install --frozen-lockfile --offline
 
 ####################################
 # BUILDER – NEXT.JS (www)
