@@ -19,28 +19,28 @@ RUN pnpm install
 # Resto del proyecto y build
 COPY . .
 
-# Build del backend (incluye build del servidor; admin puede no generarse en server/public/admin en 2.13).
+# Build del backend (admin habilitado). Medusa 2.13 escribe el bundle en .medusa/server/public/admin; si no existe, .medusa/client son solo fuentes (entry sin compilar → "Unexpected token '<'").
 RUN pnpm run build
-# Build explícito del admin: --admin-only escribe bundle completo en .medusa/admin (no fuentes en .medusa/client).
-RUN npx medusa build --admin-only 2>/dev/null || true
-# Servidor sirve desde ./public/admin/. Usar .medusa/admin (bundle real) > server/public/admin > .medusa/client (fallback).
+# Si el build normal no generó server/public/admin, forzar build standalone del admin (genera .medusa/admin con bundle real).
+RUN if [ ! -f ".medusa/server/public/admin/index.html" ]; then npx medusa build --admin-only 2>/dev/null || true; fi
+# Servidor sirve desde ./public/admin/. Orden: 1) server/public/admin (build normal), 2) .medusa/admin (--admin-only), 3) .medusa/client (solo si no hay bundle).
 RUN mkdir -p public/admin && \
-  if [ -d ".medusa/admin" ] && [ -f ".medusa/admin/index.html" ]; then \
-    cp -r .medusa/admin/. public/admin/; \
-    echo "Admin: copiado desde .medusa/admin (build --admin-only)"; \
-  elif [ -d ".medusa/server/public/admin" ] && [ -f ".medusa/server/public/admin/index.html" ]; then \
+  if [ -d ".medusa/server/public/admin" ] && [ -f ".medusa/server/public/admin/index.html" ]; then \
     cp -r .medusa/server/public/admin/. public/admin/; \
-    echo "Admin: copiado desde .medusa/server/public/admin"; \
+    echo "Admin: .medusa/server/public/admin (build)"; \
+  elif [ -d ".medusa/admin" ] && [ -f ".medusa/admin/index.html" ]; then \
+    cp -r .medusa/admin/. public/admin/; \
+    echo "Admin: .medusa/admin (--admin-only)"; \
   else \
     cp -r .medusa/client/. public/admin/; \
-    echo "Admin: fallback .medusa/client"; \
+    echo "Admin: fallback .medusa/client (panel puede fallar con Unexpected token)"; \
   fi
-# Sin <base href="/app/"> el navegador pide assets en ruta raíz; con base los pide bajo /app/
+# Sin <base href="/app/"> el navegador pide ./entry.jsx como /entry.jsx; con base pide /app/entry.jsx y assets bajo /app/
 RUN grep -q '<base href="/app/">' public/admin/index.html 2>/dev/null || \
   sed -i 's|<head>|<head><base href="/app/">|' public/admin/index.html
-# .jsx → MIME text/jsx (navegador rechaza); renombrar a .js para application/javascript
+# .jsx se sirve con MIME text/jsx y el navegador rechaza módulos; renombrar a .js para application/javascript
 RUN if [ -f public/admin/entry.jsx ]; then mv public/admin/entry.jsx public/admin/entry.js && sed -i 's|entry\.jsx|entry.js|g' public/admin/index.html; fi
-RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe" && ls -la .medusa/ 2>/dev/null; exit 1)
+RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe" && ls -la .medusa/client/ .medusa/server/public/admin 2>/dev/null; exit 1)
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
 RUN rm -rf dist/api_store_backup 2>/dev/null || true
