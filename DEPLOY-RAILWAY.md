@@ -77,7 +77,7 @@ Las variables `NEXT_PUBLIC_*` se embeben en el build de Next.js. Configuralas **
 | Variable | Valor | Obligatorio |
 |----------|--------|-------------|
 | `NEXT_PUBLIC_MEDUSA_BACKEND_URL` | URL del backend, ej. `https://ecommerce-backend-production-4529.up.railway.app` | Sí |
-| `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` | Publishable key de Medusa (después del seed del backend) | Recomendado |
+| `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` | Publishable key del backend (Admin → Settings → Publishable API Key). Sin ella el backend responde 400 y fallan regiones/productos. | **Sí** |
 | `NEXT_PUBLIC_DEFAULT_COUNTRY` | Ej. `ar` | Opcional |
 
 La URL del backend la copiás desde el servicio Backend en Railway → **Networking** → dominio público.
@@ -96,6 +96,12 @@ En el **servicio Backend** → **Variables**, asegurate de tener **STORE_CORS** 
   (reemplazá por el dominio real que te dé Railway para el frontend)
 
 Así el backend acepta peticiones desde el frontend.
+
+### Medusa Admin (panel en `/app`)
+
+El backend sirve el **Medusa Admin** en **`https://TU-BACKEND.up.railway.app/app`**. Por defecto está **habilitado**. Para deshabilitarlo (por ejemplo si solo usás la store y no el panel): en el servicio Backend → Variables → **`DISABLE_MEDUSA_ADMIN`** = **`true`**. Si no está definida o es `false`, `/app` responde con el panel de administración.
+
+En Railway conviene tener **ADMIN_CORS** (y **AUTH_CORS**) con la URL pública del backend para que el login del admin funcione desde el navegador (ej. `https://ecommerce-backend-production-xxxx.up.railway.app`).
 
 ## Orden de deploy
 

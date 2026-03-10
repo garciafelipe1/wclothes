@@ -6,9 +6,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Evitar que Medusa exija el build del admin (index.html) al arrancar
-ENV DISABLE_MEDUSA_ADMIN=true
-
+# Admin: por defecto habilitado para que /app funcione en Railway.
+# Para deshabilitarlo: en Railway Variables poné DISABLE_MEDUSA_ADMIN=true
 RUN apk add --no-cache python3 make g++ postgresql-client
 
 RUN corepack enable

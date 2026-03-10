@@ -52,6 +52,9 @@ COPY --from=builder_www /app/apps/www/.next/standalone ./
 COPY --from=builder_www /app/apps/www/.next/static ./apps/www/.next/static
 COPY --from=builder_www /app/apps/www/public ./apps/www/public
 
+# Next.js necesita escribir en .next/cache (imágenes, etc.). Crear dir y dar permisos a node.
+RUN mkdir -p apps/www/.next/cache && chown -R node:node /app
+
 USER node
 EXPOSE 3000
 

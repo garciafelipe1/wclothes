@@ -71,19 +71,23 @@ export async function getCartWithItems(cartId: string | null): Promise<Cart | nu
 /**
  * Devuelve la cantidad de ítems en el carrito (para el badge del nav).
  * Usar desde Server Components (ej. layout). No modifica cookies (no permitido en render).
+ * Timeout corto para no bloquear el render si el backend no responde (evita 502 en deploy).
  */
 export async function getCartCount(): Promise<number> {
   const cartId = await getCartId()
   if (!cartId) return 0
   try {
-    const { cart } = await medusa.store.cart.retrieve(cartId, {
-      fields: "items",
-    })
+    const timeoutMs = 3000
+    const { cart } = await Promise.race([
+      medusa.store.cart.retrieve(cartId, { fields: "items" }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("getCartCount timeout")), timeoutMs)
+      ),
+    ])
     const items = cart?.items ?? []
     return Array.isArray(items) ? items.length : 0
   } catch {
     // No llamar clearCartId() aquí: las cookies solo se pueden modificar en Server Actions o Route Handlers.
-    // La cookie inválida se limpiará en getOrSetCart (Server Action) cuando el usuario interactúe con el carrito.
     return 0
   }
 }
