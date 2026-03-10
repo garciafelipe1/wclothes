@@ -24,6 +24,8 @@ COPY . .
 RUN pnpm run build
 # El servidor busca index.html en ./public/admin/ (ADMIN_RELATIVE_OUTPUT_DIR). Medusa 2.13 escribe en .medusa/client/
 RUN mkdir -p public/admin && cp -r .medusa/client/. public/admin/
+# Sin <base href="/app/"> el navegador pide ./entry.jsx como /entry.jsx → 404. Con base, pide /app/entry.jsx.
+RUN sed -i 's|<head>|<head><base href="/app/">|' public/admin/index.html
 RUN test -f public/admin/index.html || (echo "ERROR: public/admin/index.html no existe tras el copy" && ls -la .medusa/client/ 2>/dev/null; exit 1)
 
 # Quitar rutas antiguas si existieran (evita "missing ) after argument list")
