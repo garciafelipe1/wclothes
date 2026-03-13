@@ -1,4 +1,5 @@
 import { medusa } from "@/lib/medusa"
+import { getMedusaBaseUrl } from "@/lib/env"
 import type { Order } from "@/types/order"
 
 export type { Order }
@@ -25,7 +26,7 @@ export async function getOrdersByEmail(email: string): Promise<Order[]> {
   const trimmed = email?.trim()
   if (!trimmed) return []
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9001"
+    const backendUrl = getMedusaBaseUrl()
     const url = `${backendUrl}/store/orders?email=${encodeURIComponent(trimmed)}`
     const res = await fetch(url, { next: { revalidate: 0 } })
     if (!res.ok) return []

@@ -1,4 +1,4 @@
+# Next.js (heredado del root: .next/, out/, node_modules/, .env*.local)
+# Este archivo mantiene lo específico del storefront por si se trabaja desde apps/www
 .next/
 out/
-.env*.local
-node_modules/

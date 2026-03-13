@@ -4,41 +4,8 @@ import { CatalogContent } from "@/components/catalog"
 import type { CatalogProduct } from "@/components/catalog"
 import { productService } from "@/services/product.service"
 import { getLocalizedPath } from "@/i18n/routing"
-
-function mapMedusaProduct(raw: Record<string, unknown>): CatalogProduct {
-  const images = Array.isArray(raw.images) ? raw.images as Array<{ url?: string }> : []
-  const thumbnail =
-    (typeof raw.thumbnail === "string" && raw.thumbnail) || images[0]?.url || null
-  const thumbnailHover = images.length > 1 && images[1]?.url ? images[1].url : null
-
-  const variants = Array.isArray(raw.variants)
-    ? (raw.variants as Array<{
-        calculated_price?: { calculated_amount?: number; currency_code?: string }
-        options?: Array<{ value?: string; option?: { title?: string } }>
-      }>)
-    : []
-
-  const colorValues = new Set<string>()
-  for (const v of variants) {
-    for (const o of v.options ?? []) {
-      if (o.option?.title === "Color" || o.option?.title === "Colour") {
-        if (o.value) colorValues.add(o.value)
-      }
-    }
-  }
-
-  return {
-    id: String(raw.id),
-    title: typeof raw.title === "string" ? raw.title : null,
-    handle: typeof raw.handle === "string" ? raw.handle : null,
-    thumbnail,
-    thumbnailHover: thumbnailHover || undefined,
-    variants: variants.map((v) => ({
-      calculated_price: v.calculated_price,
-    })),
-    colorValues: Array.from(colorValues),
-  }
-}
+import { mapMedusaProductToCatalog } from "@/mapping/product-mapping"
+import { getMedusaBaseUrl } from "@/lib/env"
 
 type CatalogPageProps = {
   params: Promise<{ locale: string; countryCode: string }>
@@ -81,13 +48,13 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
       min_price: Number.isFinite(minPrice) ? minPrice : undefined,
       max_price: Number.isFinite(maxPrice) ? maxPrice : undefined,
     })
-    products = list.map((p) => mapMedusaProduct(p as unknown as Record<string, unknown>))
+    products = list.map((p) => mapMedusaProductToCatalog(p as unknown as Record<string, unknown>))
     totalCount = info?.totalItems ?? products.length
   } catch (e) {
     error = e instanceof Error ? e.message : "Error al cargar productos"
   }
 
-  const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9001"
+  const backendUrl = getMedusaBaseUrl()
 
   return (
     <div className="catalog-page">

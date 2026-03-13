@@ -2,49 +2,78 @@
 node_modules/
 .pnp
 .pnp.js
+.pnpm-store/
+
+# Build & output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Medusa (backend)
+.medusa/
 
 # Testing
 coverage/
 .nyc_output
+*.lcov
 
-# Production
-dist/
-build/
-
-# TypeScript incremental
-*.tsbuildinfo
-
-# Environment variables
+# Environment (no subir; sí subir .env.example y env.template como plantillas)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.development
+.env.production
+.env.test
 
-# Logs
-logs
+# Logs y debug
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 lerna-debug.log*
 
 # OS
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# IDE
+# IDE / editor
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
 
-# Medusa
-.medusa/
+# Cache y temporales
+.cache/
+.turbo/
+.parcel-cache/
+*.tmp
+*.temp
+.temp/
+tmp/
+temp/
 
-# Database
+# Deploy / hosting (opcional)
+.vercel
+.netlify
+
+# Base de datos local / dumps
 *.sqlite
+*.sqlite3
 *.db
+*.dump
 
-
+# Archivos sensibles (claves, certificados)
+*.pem
+*.key
+*.p12
+secrets/

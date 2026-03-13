@@ -91,4 +91,11 @@ Cada paquete tiene `src/index.ts` (o punto de entrada definido en `main`) y su p
 - **Nombres de paquetes:** `@ecommerce/backend`, `@ecommerce/www`, `@ecommerce/utils`, `@ecommerce/database`.
 - **Imports en www:** Preferir alias `@/` apuntando a `src/` (ej. `@/components/home/StickyStackSection`).
 - **Env:** Variables en `.env` (no commitear). Plantilla en `.env.example` y en `apps/backend/env.template`, `apps/www/env.template`.
-- **Scripts desde raíz:** `pnpm dev`, `pnpm dev:backend`, `pnpm dev:www`, `pnpm run postgres:up`, `pnpm run db:reset`, etc.
+- **Scripts desde raíz:** `pnpm dev`, `pnpm dev:backend`, `pnpm dev:www`, `pnpm run postgres:up`, `pnpm run db:reset`, `pnpm test`, etc.
+
+## Tests
+
+- **Desde raíz:** `pnpm test` ejecuta los tests del backend y del frontend.
+- **Backend (Jest):** `pnpm --filter @ecommerce/backend test`. Tests en `src/**/__tests__/*.test.ts` (p. ej. `get-lowest-price`, validadores de la API store).
+- **Frontend (Vitest):** `pnpm --filter @ecommerce/www test`. Tests en `src/**/__tests__/*.test.ts` (p. ej. `lib/env`, `mapping/product-mapping`).
+- En CI (GitHub Actions) se ejecuta el job **Test** tras instalar dependencias; el build del frontend depende de que lint, typecheck y test pasen.

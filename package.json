@@ -32,7 +32,8 @@
     "postgres:up": "docker-compose -f docker-compose.dev.yml up -d postgres",
     "postgres:down": "docker-compose -f docker-compose.dev.yml stop postgres",
     "db:reset": "pwsh -NoProfile -File scripts/drop-medusa-db.ps1",
-    "user": "pnpm --filter @ecommerce/backend exec medusa user"
+    "user": "pnpm --filter @ecommerce/backend exec medusa user",
+    "test": "pnpm --filter @ecommerce/backend test && pnpm --filter @ecommerce/www test"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
