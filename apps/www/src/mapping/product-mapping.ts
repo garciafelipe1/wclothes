@@ -30,9 +30,10 @@ export function mapMedusaProductToCatalog(
   const colorValues = new Set<string>()
   for (const v of variants) {
     for (const o of v.options ?? []) {
+      const title = o.option?.title
       if (
-        o.option &&
-        COLOR_OPTION_TITLES.includes(o.option.title) &&
+        typeof title === "string" &&
+        COLOR_OPTION_TITLES.includes(title) &&
         o.value
       ) {
         colorValues.add(o.value)

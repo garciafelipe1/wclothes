@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 
 type Product3DViewerProps = {
   modelUrl?: string
@@ -15,6 +13,8 @@ export function Product3DViewer({ modelUrl }: Product3DViewerProps) {
   useEffect(() => {
     const mount = mountRef.current
     if (!mount) return
+
+    let disposed = false
 
     const scene = new THREE.Scene()
     scene.background = new THREE.Color("#f8f7f6")
@@ -48,11 +48,7 @@ export function Product3DViewer({ modelUrl }: Product3DViewerProps) {
     ground.receiveShadow = true
     scene.add(ground)
 
-    const controls = new OrbitControls(camera, renderer.domElement)
-    controls.enablePan = false
-    controls.minDistance = 1.2
-    controls.maxDistance = 5.5
-    controls.enableDamping = true
+    let controls: any = null
 
     let rootObject: THREE.Object3D | null = null
 
@@ -87,23 +83,43 @@ export function Product3DViewer({ modelUrl }: Product3DViewerProps) {
       scene.add(group)
     }
 
-    if (modelUrl) {
-      new GLTFLoader().load(
-        modelUrl,
-        (gltf) => {
-          rootObject = gltf.scene
-          gltf.scene.traverse((child) => {
-            const mesh = child as THREE.Mesh
-            if (mesh.isMesh) mesh.castShadow = true
-          })
-          scene.add(gltf.scene)
-        },
-        undefined,
-        () => addFallback()
-      )
-    } else {
-      addFallback()
+    const initAsync = async () => {
+      const [controlsMod, loaderMod] = await Promise.all([
+        import("three/examples/jsm/controls/OrbitControls.js"),
+        import("three/examples/jsm/loaders/GLTFLoader.js"),
+      ])
+      if (disposed) return
+
+      const OrbitControls = (controlsMod as any).OrbitControls ?? (controlsMod as any).default?.OrbitControls ?? (controlsMod as any).default
+      const GLTFLoader = (loaderMod as any).GLTFLoader ?? (loaderMod as any).default?.GLTFLoader ?? (loaderMod as any).default
+
+      controls = new OrbitControls(camera, renderer.domElement)
+      controls.enablePan = false
+      controls.minDistance = 1.2
+      controls.maxDistance = 5.5
+      controls.enableDamping = true
+
+      if (modelUrl) {
+        new GLTFLoader().load(
+          modelUrl,
+          (gltf: any) => {
+            if (disposed) return
+            rootObject = gltf.scene
+            gltf.scene.traverse((child: any) => {
+              if (child && child.isMesh) child.castShadow = true
+            })
+            scene.add(gltf.scene)
+          },
+          undefined,
+          () => {
+            if (!disposed) addFallback()
+          }
+        )
+      } else {
+        addFallback()
+      }
     }
+    void initAsync()
 
     const resize = () => {
       const { clientWidth, clientHeight } = mount
@@ -121,15 +137,16 @@ export function Product3DViewer({ modelUrl }: Product3DViewerProps) {
     const animate = () => {
       rafId = requestAnimationFrame(animate)
       if (rootObject && !modelUrl) rootObject.rotation.y += 0.005
-      controls.update()
+      if (controls) controls.update()
       renderer.render(scene, camera)
     }
     animate()
 
     return () => {
+      disposed = true
       cancelAnimationFrame(rafId)
       resizeObserver.disconnect()
-      controls.dispose()
+      if (controls) controls.dispose()
       renderer.dispose()
       if (renderer.domElement.parentElement === mount) mount.removeChild(renderer.domElement)
       scene.clear()
