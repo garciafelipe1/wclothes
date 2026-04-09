@@ -3,16 +3,18 @@
 import { useState, useRef, useCallback } from "react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { Product3DViewer } from "./Product3DViewer"
 
 type ProductImageGalleryProps = {
   title?: string
   thumbnail?: string
   images?: Array<{ url?: string }>
+  modelUrl?: string
 }
 
 const THUMB_VISIBLE = 4
 
-export function ProductImageGallery({ title, thumbnail, images }: ProductImageGalleryProps) {
+export function ProductImageGallery({ title, thumbnail, images, modelUrl }: ProductImageGalleryProps) {
   const t = useTranslations("pdp")
   const allImages: string[] = []
   if (thumbnail) allImages.push(thumbnail)
@@ -23,6 +25,7 @@ export function ProductImageGallery({ title, thumbnail, images }: ProductImageGa
   const [thumbScroll, setThumbScroll] = useState(0)
   const [zoom, setZoom] = useState(false)
   const [pos, setPos] = useState({ x: 50, y: 50 })
+  const [viewMode, setViewMode] = useState<"image" | "3d">("image")
   const mainRef = useRef<HTMLDivElement>(null)
   const mainUrl = allImages[activeIndex] ?? allImages[0]
 
@@ -32,16 +35,18 @@ export function ProductImageGallery({ title, thumbnail, images }: ProductImageGa
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!zoom || !mainRef.current) return
+      if (!zoom || viewMode !== "image" || !mainRef.current) return
       const rect = mainRef.current.getBoundingClientRect()
       const x = ((e.clientX - rect.left) / rect.width) * 100
       const y = ((e.clientY - rect.top) / rect.height) * 100
       setPos({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) })
     },
-    [zoom]
+    [zoom, viewMode]
   )
 
-  const handleMouseEnter = useCallback(() => setZoom(true), [])
+  const handleMouseEnter = useCallback(() => {
+    if (viewMode === "image") setZoom(true)
+  }, [viewMode])
   const handleMouseLeave = useCallback(() => setZoom(false), [])
 
   const handleShare = useCallback(async () => {
@@ -115,22 +120,46 @@ export function ProductImageGallery({ title, thumbnail, images }: ProductImageGa
         </div>
       )}
       <div className="pdp-gallery__main-wrap">
+        <div className="pdp-gallery__view-modes" role="tablist" aria-label="Product view mode">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "image"}
+            className={`pdp-gallery__view-btn ${viewMode === "image" ? "pdp-gallery__view-btn--active" : ""}`}
+            onClick={() => setViewMode("image")}
+          >
+            Foto
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "3d"}
+            className={`pdp-gallery__view-btn ${viewMode === "3d" ? "pdp-gallery__view-btn--active" : ""}`}
+            onClick={() => setViewMode("3d")}
+          >
+            3D
+          </button>
+        </div>
         <div
           ref={mainRef}
-          className={`pdp-gallery__main ${zoom ? "pdp-gallery__main--zoomed" : ""}`}
+          className={`pdp-gallery__main ${zoom && viewMode === "image" ? "pdp-gallery__main--zoomed" : ""}`}
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <Image
-            src={mainUrl}
-            alt={title ?? ""}
-            fill
-            sizes="(max-width: 960px) 100vw, min(65vw, 900px)"
-            priority
-            className="pdp-gallery__img"
-            style={zoom ? { transformOrigin: `${pos.x}% ${pos.y}%` } : undefined}
-          />
+          {viewMode === "3d" ? (
+            <Product3DViewer modelUrl={modelUrl} />
+          ) : (
+            <Image
+              src={mainUrl}
+              alt={title ?? ""}
+              fill
+              sizes="(max-width: 960px) 100vw, min(65vw, 900px)"
+              priority
+              className="pdp-gallery__img"
+              style={zoom ? { transformOrigin: `${pos.x}% ${pos.y}%` } : undefined}
+            />
+          )}
         </div>
         <button type="button" className="pdp-gallery__share" onClick={handleShare}>
           ← {t("share")}

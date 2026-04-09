@@ -872,6 +872,14 @@
   align-items: stretch;
 }
 
+/* Tablet: keep cards readable (3 cols) */
+@media (max-width: 1024px) {
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.25rem 1.5rem;
+  }
+}
+
 @media (max-width: 900px) {
   .catalog-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1015,6 +1023,34 @@
   background: transparent;
   padding: 0;
   animation: catalog-fade-in-up 0.6s ease-out 0.2s both;
+}
+
+@media (max-width: 1024px) {
+  /* Tablet: keep the feature video, but avoid big whitespace.
+     Layout:
+       [ video (full width) ]
+       [ left products ] [ right products ]
+  */
+  .catalog-feature-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "video video"
+      "left right";
+    gap: 1.5rem;
+  }
+
+  .catalog-feature-row__video-wrap {
+    grid-area: video;
+    min-height: 420px;
+  }
+
+  .catalog-feature-row__side:first-child {
+    grid-area: left;
+  }
+
+  .catalog-feature-row__side:last-child {
+    grid-area: right;
+  }
 }
 
 .catalog-feature-row__side {

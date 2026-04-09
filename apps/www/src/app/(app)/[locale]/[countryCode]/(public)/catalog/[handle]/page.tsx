@@ -38,6 +38,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const materials = metadata.materials ?? metadata.fabric ?? ""
   const fit = metadata.fit ?? metadata.sizing ?? ""
   const care = metadata.care ?? metadata.care_instructions ?? ""
+  const modelUrl =
+    metadata.model_3d_url ??
+    metadata.model3d_url ??
+    metadata.model_url ??
+    metadata.glb_url
 
   const breadcrumb = (
     <nav className="pdp__breadcrumb" aria-label="Breadcrumb">
@@ -58,6 +63,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               title={product.title ?? undefined}
               thumbnail={typeof product.thumbnail === "string" ? product.thumbnail : undefined}
               images={Array.isArray(product.images) ? product.images : undefined}
+              modelUrl={modelUrl}
             />
           </div>
           <div className="pdp__hero-sidebar">

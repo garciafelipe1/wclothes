@@ -61,6 +61,10 @@
   width: 100%;
 }
 
+.nav-bar-wrap {
+  min-width: 0;
+}
+
 .nav-left {
   flex: 1;
   display: flex;
@@ -140,6 +144,54 @@
     align-items: center;
     gap: 1.5rem;
     position: relative;
+  }
+}
+
+/* ── Tablet (iPad) layout ──
+   iPad widths often are 810–1024px. The desktop layout uses an absolute centered logo,
+   which can overlap with left links and right controls on tablets.
+*/
+@media (max-width: 1024px) {
+  .main-nav {
+    height: 64px;
+    padding: 0.5rem 1rem;
+  }
+
+  .nav-hamburger {
+    display: flex;
+  }
+
+  .nav-links-wrap {
+    display: none;
+  }
+
+  .nav-left {
+    flex: 0 0 auto;
+    gap: 0.5rem;
+  }
+
+  .nav-center {
+    position: static;
+    left: auto;
+    transform: none;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .nav-logo img {
+    width: 80px;
+    height: auto;
+  }
+
+  .nav-right {
+    flex: 0 0 auto;
+    gap: 0.5rem;
+  }
+
+  .nav-icon {
+    padding: 0.35rem;
   }
 }
 

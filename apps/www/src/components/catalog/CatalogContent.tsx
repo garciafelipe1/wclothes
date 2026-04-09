@@ -32,7 +32,10 @@ export default function CatalogContent({
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT)
+    const check = () => {
+      const w = window.innerWidth
+      setIsMobile(w <= MOBILE_BREAKPOINT)
+    }
     check()
     window.addEventListener("resize", check)
     return () => window.removeEventListener("resize", check)
